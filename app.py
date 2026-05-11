@@ -6,7 +6,6 @@ from datetime import datetime
 st.set_page_config(page_title="Smart Security Docs", page_icon="🛡️")
 st.title("🛡️ Generador Smart Security")
 
-# Mapeo de archivos
 archivos = {
     "Contrato Persona Natural": "contratonatural.docx",
     "DJ Persona Natural": "Djnatural.docx",
@@ -15,7 +14,6 @@ archivos = {
 
 opcion = st.selectbox("¿Qué documento vas a generar?", list(archivos.keys()))
 
-# Variables de control
 descarga_lista = False
 output = io.BytesIO()
 nombre_archivo = ""
@@ -36,12 +34,9 @@ with st.form("formulario"):
 
     enviar = st.form_submit_button("GENERAR DOCUMENTO")
 
-# Procesar fuera del formulario para evitar errores de Streamlit
 if enviar:
     try:
         doc = DocxTemplate(archivos[opcion])
-        
-        # Diccionario de datos para tus Word
         contexto = {
             "nombre_persona_natural": nombre,
             "nombre_persona_juridica": nombre,
@@ -57,18 +52,15 @@ if enviar:
             "pas_x": "X" if tipo_doc == "Pasaporte" else " ",
             "ce_x": "X" if tipo_doc == "CE" else " "
         }
-        
         doc.render(contexto)
         doc.save(output)
         descarga_lista = True
         nombre_archivo = f"{nombre}_{opcion}.docx"
-        
     except Exception as e:
-        st.error(f"Error técnico: {e}")
+        st.error(f"Error: {e}")
 
-# Mostrar botón de descarga si todo salió bien
 if descarga_lista:
-    st.success(f"✅ Documento para {nombre} listo")
+    st.success(f"✅ Documento listo")
     st.download_button(
         label="📥 DESCARGAR AQUÍ",
         data=output.getvalue(),
