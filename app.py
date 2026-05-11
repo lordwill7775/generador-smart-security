@@ -6,6 +6,7 @@ from datetime import datetime
 st.set_page_config(page_title="Smart Security Docs", page_icon="🛡️")
 st.title("🛡️ Generador Smart Security")
 
+# Asegúrate de que estos nombres coincidan EXACTO con tus archivos en GitHub
 archivos = {
     "Contrato Persona Natural": "contratonatural.docx",
     "DJ Persona Natural": "Djnatural.docx",
@@ -14,6 +15,7 @@ archivos = {
 
 opcion = st.selectbox("¿Qué documento vas a generar?", list(archivos.keys()))
 
+# Variables para manejar la descarga
 descarga_lista = False
 output = io.BytesIO()
 nombre_archivo = ""
@@ -57,10 +59,10 @@ if enviar:
         descarga_lista = True
         nombre_archivo = f"{nombre}_{opcion}.docx"
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Error al procesar: {e}")
 
 if descarga_lista:
-    st.success(f"✅ Documento listo")
+    st.success(f"✅ Documento para {nombre} generado")
     st.download_button(
         label="📥 DESCARGAR AQUÍ",
         data=output.getvalue(),
