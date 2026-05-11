@@ -9,10 +9,10 @@ st.title("🛡️ Generador Smart Security")
 
 # Nombres exactos de tus archivos cargados en GitHub
 archivos = {
-    "Contrato Persona Jurídica": "contratojuridica.docx.dotx",
-    "Contrato Persona Natural": "contratonatural.docx.docx",
-    "DJ Persona Natural": "Djnatural.docx.docx",
-    "DJ Persona Jurídica": "djpersonajuridica.docx.docx"
+    "Contrato Persona Jurídica": "contratojuridica.docx",
+    "Contrato Persona Natural": "contratonatural.docx",
+    "DJ Persona Natural": "Djnatural.docx",
+    "DJ Persona Jurídica": "djpersonajuridica.docx"
 }
 
 # Menú para que el equipo elija el documento
