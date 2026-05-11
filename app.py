@@ -6,16 +6,15 @@ from datetime import datetime
 st.set_page_config(page_title="Smart Security Docs", page_icon="🛡️")
 st.title("🛡️ Generador Smart Security")
 
-# Asegúrate de que estos nombres coincidan EXACTO con tus archivos en GitHub
+# NOMBRES CORREGIDOS SEGÚN TU CAPTURA DE PANTALLA
 archivos = {
     "Contrato Persona Natural": "contratonatural.docx",
     "DJ Persona Natural": "Djnatural.docx",
-    "DJ Persona Jurídica": "djpersonajuridica.docx"
+    "Contrato Persona Jurídica": "contratojuridica.docx"
 }
 
 opcion = st.selectbox("¿Qué documento vas a generar?", list(archivos.keys()))
 
-# Variables para manejar la descarga
 descarga_lista = False
 output = io.BytesIO()
 nombre_archivo = ""
@@ -38,6 +37,7 @@ with st.form("formulario"):
 
 if enviar:
     try:
+        # Ahora el programa sí encontrará "contratojuridica.docx"
         doc = DocxTemplate(archivos[opcion])
         contexto = {
             "nombre_persona_natural": nombre,
@@ -59,10 +59,11 @@ if enviar:
         descarga_lista = True
         nombre_archivo = f"{nombre}_{opcion}.docx"
     except Exception as e:
-        st.error(f"Error al procesar: {e}")
+        # Este error 'unexpected }' viene del contenido de tus Word
+        st.error(f"Error en el Word: {e}. Revisa que en tus archivos Word todas las llaves {{ }} estén bien cerradas.")
 
 if descarga_lista:
-    st.success(f"✅ Documento para {nombre} generado")
+    st.success(f"✅ Documento listo")
     st.download_button(
         label="📥 DESCARGAR AQUÍ",
         data=output.getvalue(),
