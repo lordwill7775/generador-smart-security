@@ -11,7 +11,7 @@ st.set_page_config(page_title="Aló Credit | Portal", page_icon="💳", layout="
 color_azul_oscuro = "#001B3D"
 color_naranja_alo = "#FF7F00"
 
-# --- DISEÑO UI (MARCOS Y COLORES CORREGIDOS) ---
+# --- DISEÑO UI (SOLUCIÓN DEFINITIVA DE COLORES Y BORDES) ---
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
@@ -21,53 +21,55 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
     
-    /* LETRAS EXTERNAS - BLANCAS */
-    div:not([data-testid="stForm"]) label p, 
-    div:not([data-testid="stForm"]) .stMarkdown p {{
+    /* 1. TEXTO FUERA DEL FORMULARIO - BLANCO */
+    div[data-testid="stVerticalBlock"] > div:not([data-testid="stForm"]) label p {{
         color: #FFFFFF !important;
         font-family: 'Montserrat', sans-serif !important;
-        font-weight: 700 !important;
         text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     }}
 
-    /* CAJA BLANCA DEL FORMULARIO */
+    /* 2. CAJA BLANCA DEL FORMULARIO */
     [data-testid="stForm"] {{
         background: rgba(255, 255, 255, 0.98) !important; 
         border-radius: 30px !important;
         padding: 40px !important;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
-        border: 2px solid rgba(0, 27, 61, 0.1) !important;
     }}
 
-    /* LETRAS DENTRO DEL FORMULARIO - AZUL MARINO */
+    /* 3. TEXTO DENTRO DEL FORMULARIO - AZUL MARINO (FORZADO) */
+    /* Apuntamos a todos los posibles contenedores de texto de etiquetas */
     [data-testid="stForm"] label p, 
+    [data-testid="stForm"] label, 
+    [data-testid="stForm"] .stMarkdown p, 
     [data-testid="stForm"] h2 {{
         color: {color_azul_oscuro} !important;
+        fill: {color_azul_oscuro} !important;
+        -webkit-text-fill-color: {color_azul_oscuro} !important;
         font-family: 'Montserrat', sans-serif !important;
-        font-weight: 700 !important;
+        text-shadow: none !important;
     }}
 
-    /* MARCOS PARA LAS CAJAS DE TEXTO (INPUTS) */
-    .stTextInput div[data-baseweb="input"] {{
-        border: 2px solid {color_azul_oscuro} !important; /* Marco azul marino */
+    /* 4. MARCOS DE LAS CAJAS DE TEXTO */
+    /* Esto le pone el borde azul marino a los inputs */
+    [data-testid="stForm"] .stTextInput div[data-baseweb="input"] {{
+        border: 2px solid {color_azul_oscuro} !important;
         border-radius: 10px !important;
         background-color: #FFFFFF !important;
     }}
 
-    .stTextInput input {{
-        color: #000000 !important; /* Texto que escribes en negro */
-        font-weight: 600 !important;
+    /* Color del texto que el usuario escribe */
+    [data-testid="stForm"] input {{
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
     }}
     
-    /* BOTÓN GENERAR */
+    /* BOTÓN */
     .stButton button {{
         background-color: {color_azul_oscuro} !important;
         color: white !important;
         border: 2px solid {color_naranja_alo} !important;
         border-radius: 12px !important;
         font-weight: 800 !important;
-        padding: 10px !important;
-        width: 100%;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -81,14 +83,14 @@ with col_c:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- SELECTORES ---
+# --- SELECTORES SUPERIORES ---
 c1, c2 = st.columns(2)
 with c1:
-    categoria = st.selectbox("📂 Selecciona el Documento", ["Contrato de Alianza Comercial", "Declaración Jurada"])
+    categoria = st.selectbox("📂 Tipo de Documento", ["Contrato de Alianza Comercial", "Declaración Jurada"])
 with c2:
     tipo_persona = st.radio("👤 Perfil de Cliente", ["Natural", "Jurídica"], horizontal=True)
 
-# --- FORMULARIO CON MARCOS ---
+# --- FORMULARIO ---
 with st.form("form_final"):
     st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
     
@@ -123,15 +125,12 @@ with st.form("form_final"):
     st.write("")
     enviar = st.form_submit_button("🚀 GENERAR DOCUMENTO OFICIAL")
 
-# --- LÓGICA ---
+# --- LÓGICA DE PROCESADO ---
 if enviar:
     if not nombre or not documento:
         st.error("❌ Por favor completa los campos principales.")
     else:
-        try:
-            # Aquí va tu lógica de DocxTemplate...
-            st.success("✅ ¡Formulario enviado correctamente!")
-        except:
-            st.error("Revisa tus archivos en GitHub.")
+        st.success(f"✅ ¡Datos recibidos para {nombre}!")
+        # Aquí sigue tu código de DocxTemplate...
 
 st.markdown("<p style='text-align: center; color: white;'>Willy Ríos | Hunter Business</p>", unsafe_allow_html=True)
