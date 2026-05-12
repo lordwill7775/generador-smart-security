@@ -7,10 +7,17 @@ from datetime import datetime
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Smart Security | Portal", page_icon="💳", layout="centered")
 
-# --- ESTILOS CORPORATIVOS (OPTIMIZADO PARA PC Y CELULAR) ---
+# --- ESTILOS CORPORATIVOS (OCULTA MENÚS SUPERIORES) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+    
+    /* OCULTAR MENÚ DE STREAMLIT Y BARRA SUPERIOR */
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    .stDeployButton {display:none;}
+    
     .stApp { 
         background: radial-gradient(circle at 20% 30%, #003a85 0%, #001B3D 60%, #FF7F00 130%) !important; 
         background-attachment: fixed; 
@@ -36,10 +43,6 @@ st.markdown("""
         border-radius: 12px; 
         padding: 12px;
     }
-    /* Ajuste para que en celular los botones y campos tengan mejor espacio */
-    @media (max-width: 640px) {
-        [data-testid="stForm"] { padding: 15px !important; }
-    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -48,15 +51,15 @@ if os.path.exists("hunter1.png"):
     col_l, col_c, col_r = st.columns([1.5, 1, 1.5])
     with col_c: st.image("hunter1.png", width=150)
 
-# --- SELECTORES PRINCIPALES ---
+# --- SELECTORES ---
 c1, c2 = st.columns([1, 1])
 with c1:
     categoria = st.selectbox("📂 Tipo de Documento", ["Declaración Jurada", "Contrato de Alianza Comercial"])
 with c2:
     tipo_persona = st.radio("👤 Perfil", ["Natural", "Jurídica"], horizontal=True)
 
-# --- FORMULARIO DE REGISTRO ---
-with st.form("form_smart_security_final_v8"):
+# --- FORMULARIO ---
+with st.form("form_smart_final_blindado"):
     st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
     
     if tipo_persona == "Natural":
@@ -76,7 +79,6 @@ with st.form("form_smart_security_final_v8"):
             "correo_electronico": correo, "ciudad": ciudad, "dni_x": "X"
         }
     else:
-        # SECCIÓN JURÍDICA (Basado en djpersonajuridica.docx)
         st.markdown("### 👤 Datos del Representante Legal")
         r1c1, r1c2 = st.columns(2)
         with r1c1:
@@ -114,26 +116,20 @@ with st.form("form_smart_security_final_v8"):
             "pas_x": " ", "ce_x": " ", "sol_x": " ", "cas_x": " ", "div_x": " ", "viu_x": " ", "con_x": " "
         }
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    submit = st.form_submit_button("🚀 GENERAR DOCUMENTO OFICIAL")
+    submit = st.form_submit_button("🚀 GENERAR DOCUMENTO")
 
-# --- LÓGICA DE PROCESAMIENTO ---
+# --- PROCESAMIENTO ---
 if submit:
     try:
-        # Selección del archivo según lo que tienes en GitHub
         archivo = "Djnatural.docx" if tipo_persona == "Natural" else "djpersonajuridica.docx"
-            
         doc = DocxTemplate(archivo)
         
-        # Fecha automática
         hoy = datetime.now()
         meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
         contexto["fecha_texto"] = f"{hoy.day} de {meses[hoy.month - 1]} de {hoy.year}"
         
-        # Renderizado de datos
         doc.render(contexto)
 
-        # REEMPLAZO FORZADO (Mantiene el fix para el número de partida fijo)
         if tipo_persona == "Jurídica":
             for table in doc.tables:
                 for row in table.rows:
@@ -145,18 +141,16 @@ if submit:
         doc.save(output)
         output.seek(0)
         
-        # --- ACTIVACIÓN DE GLOBITOS ---
-        st.balloons()
-        
-        st.success(f"✅ ¡Documento generado con éxito!")
+        st.balloons() # ¡Globitos listos!
+        st.success("✅ ¡Documento generado!")
         
         st.download_button(
-            label="📥 CLIC AQUÍ PARA DESCARGAR WORD", 
+            label="📥 DESCARGAR ARCHIVO WORD", 
             data=output, 
             file_name=f"Smart_Security_{tipo_persona}.docx",
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
     except Exception as e:
-        st.error(f"Error al procesar: {e}")
+        st.error(f"Error: {e}")
 
 st.markdown("<p style='text-align: center; color: white; font-size: 12px; margin-top: 50px;'>Willy Ríos | Smart Security © 2026</p>", unsafe_allow_html=True)
