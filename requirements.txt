@@ -1,3 +1,2 @@
 streamlit
-docxtpl
-aspose-words
+fpdf2
