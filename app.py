@@ -6,87 +6,102 @@ import os
 from datetime import datetime
 
 st.set_page_config(page_title="Smart Security PDF", page_icon="🛡️")
-st.title("🛡️ Generador de Contratos PDF")
+st.title("🛡️ Sistema de Documentos Smart Security")
 
-# Diccionario con tus nombres de archivos exactos en GitHub
-archivos = {
-    "Contrato Persona Natural": "contratonatural.docx",
-    "DJ Persona Natural": "Djnatural.docx",
-    "Contrato Persona Jurídica": "contratojuridica.docx",
-    "DJ Persona Jurídica": "djpersonajuridica.docx"
-}
+# 1. Selección de Categoría
+categoria = st.selectbox("¿Qué deseas generar?", ["Contrato de Alianza", "Declaración Jurada"])
 
-opcion = st.selectbox("Selecciona tu formato de Word:", list(archivos.keys()))
+# 2. Selección de Tipo de Persona
+tipo_persona = st.radio("Tipo de Persona:", ["Natural", "Jurídica"], horizontal=True)
 
-with st.form("formulario"):
-    st.subheader("Datos del Documento")
-    nombre = st.text_input("Nombres y Apellidos / Razón Social")
-    documento = st.text_input("DNI / RUC")
-    direccion = st.text_input("Dirección")
+# Lógica para seleccionar el archivo Word correcto
+if categoria == "Contrato de Alianza":
+    archivo_word = "contratonatural.docx" if tipo_persona == "Natural" else "contratojuridica.docx"
+else:
+    archivo_word = "Djnatural.docx" if tipo_persona == "Natural" else "djpersonajuridica.docx"
+
+with st.form("formulario_dinamico"):
+    st.subheader(f"Datos para: {categoria} ({tipo_persona})")
     
-    # Datos para Persona Jurídica
+    col1, col2 = st.columns(2)
+    with col1:
+        nombre = st.text_input("Nombres y Apellidos / Razón Social")
+        documento = st.text_input("DNI / RUC del Titular")
+    with col2:
+        direccion = st.text_input("Dirección")
+        correo = st.text_input("Correo Electrónico")
+    
+    telefono = st.text_input("Teléfono/Celular")
+    
+    # Campos que solo aparecen si es Jurídica
     rep_legal, dni_rep, partida, asiento = "", "", "", ""
-    if "Jurídica" in opcion:
-        st.subheader("Información Legal")
-        rep_legal = st.text_input("Representante Legal")
+    if tipo_persona == "Jurídica":
+        st.divider()
+        st.subheader("Información del Representante Legal")
+        rep_legal = st.text_input("Nombre Completo del Representante")
         dni_rep = st.text_input("DNI del Representante")
-        partida = st.text_input("Partida Registral")
-        asiento = st.text_input("Asiento")
+        partida = st.text_input("Partida Registral N°")
+        asiento = st.text_input("Asiento N°")
 
-    enviar = st.form_submit_button("GENERAR PDF CON MI FORMATO")
+    st.divider()
+    ciudad = st.text_input("Ciudad de Firma", value="Lima")
+    fecha_sel = st.date_input("Fecha del documento", datetime.now())
+    
+    enviar = st.form_submit_button("GENERAR PDF FINAL")
 
 if enviar:
     try:
-        # 1. Rellenar tu Word original
-        doc_tpl = DocxTemplate(archivos[opcion])
-        
+        # Formatear fecha en español
         meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
-        hoy = datetime.now()
-        fecha_formateada = f"{hoy.day} de {meses[hoy.month - 1]} de {hoy.year}"
+        fecha_texto = f"{fecha_sel.day} de {meses[fecha_sel.month - 1]} de {fecha_sel.year}"
 
+        # Cargar plantilla y rellenar
+        doc_tpl = DocxTemplate(archivo_word)
         contexto = {
             "nombre_persona_natural": nombre,
             "nombre_persona_juridica": nombre,
             "nombres_apellidos": nombre,
-            "numero_dni": dni_rep if "Jurídica" in opcion else documento,
+            "numero_dni": dni_rep if tipo_persona == "Jurídica" else documento,
             "numero_ruc": documento,
             "numero_documento": documento,
             "direccion": direccion,
             "dirección": direccion,
+            "dirección_declarada": direccion,
+            "correo_electronico": correo,
+            "numero_telefono": telefono,
             "nombre_representante_legal": rep_legal,
             "numero_asiento": asiento,
             "numero_partida_registral": partida,
-            "fecha_texto": fecha_formateada,
+            "ciudad": ciudad,
+            "fecha_texto": fecha_texto,
             "dni_x": "X", "pas_x": " ", "ce_x": " "
         }
         
         doc_tpl.render(contexto)
         
-        # Archivos temporales
-        temp_word = "temp_final.docx"
-        temp_pdf = "resultado_final.pdf"
+        # Procesamiento de archivos
+        temp_word = "temp_output.docx"
+        temp_pdf = "final_output.pdf"
         doc_tpl.save(temp_word)
         
-        # 2. Convertir a PDF manteniendo el diseño original
-        document = Document()
-        document.LoadFromFile(temp_word)
-        document.SaveToFile(temp_pdf, FileFormat.PDF)
-        document.Close()
+        # Conversión a PDF con Spire.Doc para mantener el formato original
+        pdf_doc = Document()
+        pdf_doc.LoadFromFile(temp_word)
+        pdf_doc.SaveToFile(temp_pdf, FileFormat.PDF)
+        pdf_doc.Close()
         
         with open(temp_pdf, "rb") as f:
-            pdf_bytes = f.read()
-
-        st.success("✅ ¡PDF generado con tu diseño original!")
-        st.download_button(
-            label="📥 DESCARGAR PDF",
-            data=pdf_bytes,
-            file_name=f"{nombre}_{opcion}.pdf",
-            mime="application/pdf"
-        )
+            st.success(f"✅ {categoria} generado con éxito")
+            st.download_button(
+                label="📥 DESCARGAR PDF",
+                data=f.read(),
+                file_name=f"{nombre}_{categoria}.pdf",
+                mime="application/pdf"
+            )
         
-        # Limpiar temporales
+        # Limpieza
         if os.path.exists(temp_word): os.remove(temp_word)
         if os.path.exists(temp_pdf): os.remove(temp_pdf)
 
     except Exception as e:
-        st.error(f"Error: {e}. Revisa que tus archivos Word estén bien subidos a GitHub.")
+        st.error(f"Error: {e}. Asegúrate de que los archivos Word estén en tu GitHub.")
