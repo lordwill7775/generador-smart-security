@@ -11,47 +11,52 @@ st.set_page_config(page_title="Aló Credit | Portal", page_icon="💳", layout="
 color_azul_oscuro = "#001B3D"
 color_naranja_alo = "#FF7F00"
 
-# --- DISEÑO UI (SOLUCIÓN DE COLOR DE FUENTE) ---
+# --- DISEÑO UI (MARCOS Y COLORES CORREGIDOS) ---
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
 
-    /* 1. FONDO DE LA APP */
     .stApp {{
         background: radial-gradient(circle at 20% 30%, #003a85 0%, {color_azul_oscuro} 60%, {color_naranja_alo} 130%) !important;
         background-attachment: fixed;
     }}
     
-    /* 2. LETRAS EXTERNAS (Selectores superiores) - BLANCAS */
-    .stSelectbox label p, .stRadio label p, .stMarkdown p {{
+    /* LETRAS EXTERNAS - BLANCAS */
+    div:not([data-testid="stForm"]) label p, 
+    div:not([data-testid="stForm"]) .stMarkdown p {{
         color: #FFFFFF !important;
         font-family: 'Montserrat', sans-serif !important;
         font-weight: 700 !important;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     }}
 
-    /* 3. CAJA BLANCA DEL FORMULARIO */
+    /* CAJA BLANCA DEL FORMULARIO */
     [data-testid="stForm"] {{
         background: rgba(255, 255, 255, 0.98) !important; 
         border-radius: 30px !important;
         padding: 40px !important;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
-        border: none !important;
+        border: 2px solid rgba(0, 27, 61, 0.1) !important;
     }}
 
-    /* 4. SOLUCIÓN AGRESIVA PARA LETRAS DENTRO DEL FORMULARIO - AZUL MARINO */
-    /* Este selector apunta directamente a los párrafos dentro de las etiquetas del formulario */
+    /* LETRAS DENTRO DEL FORMULARIO - AZUL MARINO */
     [data-testid="stForm"] label p, 
-    [data-testid="stForm"] [data-testid="stMarkdownContainer"] p,
     [data-testid="stForm"] h2 {{
         color: {color_azul_oscuro} !important;
-        text-shadow: none !important;
-        -webkit-text-fill-color: {color_azul_oscuro} !important; /* Fuerza el color en algunos navegadores */
+        font-family: 'Montserrat', sans-serif !important;
+        font-weight: 700 !important;
     }}
 
-    /* Estilo de los inputs */
+    /* MARCOS PARA LAS CAJAS DE TEXTO (INPUTS) */
+    .stTextInput div[data-baseweb="input"] {{
+        border: 2px solid {color_azul_oscuro} !important; /* Marco azul marino */
+        border-radius: 10px !important;
+        background-color: #FFFFFF !important;
+    }}
+
     .stTextInput input {{
-        color: #000000 !important;
-        background-color: #f9f9f9 !important;
+        color: #000000 !important; /* Texto que escribes en negro */
+        font-weight: 600 !important;
     }}
     
     /* BOTÓN GENERAR */
@@ -61,6 +66,8 @@ st.markdown(f"""
         border: 2px solid {color_naranja_alo} !important;
         border-radius: 12px !important;
         font-weight: 800 !important;
+        padding: 10px !important;
+        width: 100%;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -74,15 +81,15 @@ with col_c:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- SELECTORES (PC: 2 Columnas) ---
+# --- SELECTORES ---
 c1, c2 = st.columns(2)
 with c1:
-    categoria = st.selectbox("📂 Tipo de Documento", ["Contrato de Alianza Comercial", "Declaración Jurada"])
+    categoria = st.selectbox("📂 Selecciona el Documento", ["Contrato de Alianza Comercial", "Declaración Jurada"])
 with c2:
     tipo_persona = st.radio("👤 Perfil de Cliente", ["Natural", "Jurídica"], horizontal=True)
 
-# --- FORMULARIO (PC: 2 Columnas) ---
-with st.form("form_registro"):
+# --- FORMULARIO CON MARCOS ---
+with st.form("form_final"):
     st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
     
     r1c1, r1c2 = st.columns(2)
@@ -104,7 +111,7 @@ with st.form("form_registro"):
         ciudad = st.text_input("Ciudad de Firma", value="Lima")
     
     if tipo_persona == "Jurídica":
-        st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("<hr style='border: 1px solid #001B3D;'>", unsafe_allow_html=True)
         cx, cy = st.columns(2)
         with cx:
             rep_legal = st.text_input("Representante Legal")
@@ -113,19 +120,18 @@ with st.form("form_registro"):
             partida = st.text_input("Partida N°")
             asiento = st.text_input("Asiento N°")
 
+    st.write("")
     enviar = st.form_submit_button("🚀 GENERAR DOCUMENTO OFICIAL")
 
 # --- LÓGICA ---
 if enviar:
     if not nombre or not documento:
-        st.error("❌ Por favor completa el Nombre y el DNI/RUC.")
+        st.error("❌ Por favor completa los campos principales.")
     else:
         try:
-            archivo = "contratonatural.docx" # Ejemplo simplificado para prueba
-            doc = DocxTemplate(archivo)
-            # ... (resto de tu lógica de renderizado igual que antes)
-            st.success("¡Generado!")
+            # Aquí va tu lógica de DocxTemplate...
+            st.success("✅ ¡Formulario enviado correctamente!")
         except:
-            st.error("Error: Verifica tus plantillas .docx")
+            st.error("Revisa tus archivos en GitHub.")
 
 st.markdown("<p style='text-align: center; color: white;'>Willy Ríos | Hunter Business</p>", unsafe_allow_html=True)
