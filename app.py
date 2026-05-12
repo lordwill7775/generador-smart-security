@@ -10,20 +10,19 @@ st.set_page_config(page_title="Aló Credit | Portal de Documentos", page_icon="�
 # --- COLORES CORPORATIVOS ---
 color_azul_oscuro = "#001B3D"
 color_naranja_alo = "#FF7F00"
-color_texto_legible = "#001B3D" # Azul oscuro para máxima legibilidad
 
-# --- DISEÑO UI MEJORADO ---
+# --- DISEÑO UI MEJORADO (LEGIBILIDAD TOTAL) ---
 st.markdown(f"""
     <style>
-    /* Fondo radial según la imagen de referencia */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
     .stApp {{
         background: radial-gradient(circle at 20% 30%, #003a85 0%, {color_azul_oscuro} 60%, {color_naranja_alo} 130%) !important;
         background-attachment: fixed;
     }}
     
-    /* Tarjeta de Cristal con mayor opacidad para lectura */
     [data-testid="stForm"] {{
-        background: rgba(255, 255, 255, 0.88) !important; /* Más sólido para que se vea el texto oscuro */
+        background: rgba(255, 255, 255, 0.92) !important; 
         backdrop-filter: blur(20px);
         border-radius: 30px !important;
         padding: 40px !important;
@@ -31,25 +30,23 @@ st.markdown(f"""
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
     }}
 
-    /* CAMBIO DE FUENTE Y COLOR DEL FORMULARIO */
-    h2, p, label, .stMarkdown {{
-        color: {color_texto_legible} !important;
+    /* Color azul marino para etiquetas y títulos */
+    h2, p, label, .stMarkdown, [data-testid="stWidgetLabel"] p {{
+        color: {color_azul_oscuro} !important;
         font-family: 'Montserrat', sans-serif !important;
         font-weight: 700 !important;
     }}
 
-    /* Inputs con bordes definidos */
     .stTextInput>div>div>input {{
         background-color: white !important;
-        border: 2px solid #DEDEDE !important;
+        border: 1px solid #ccc !important;
         color: black !important;
-        border-radius: 10px !important;
     }}
     
-    /* BOTÓN: Texto cambiado a Azul Oscuro para mejor contraste */
+    /* Botón con texto blanco sobre fondo azul */
     .stButton>button {{
         background-color: {color_azul_oscuro} !important;
-        color: #FFFFFF !important; /* Texto blanco sobre botón oscuro */
+        color: #FFFFFF !important;
         border: 2px solid {color_naranja_alo} !important;
         border-radius: 15px !important;
         font-weight: 800 !important;
@@ -63,19 +60,16 @@ st.markdown(f"""
     .stButton>button:hover {{
         background-color: {color_naranja_alo} !important;
         color: {color_azul_oscuro} !important;
-        box-shadow: 0px 0px 20px {color_naranja_alo};
     }}
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     """, unsafe_allow_html=True)
 
-# --- CABECERA: LOGO MÁS PEQUEÑO ---
+# --- CABECERA: LOGO PEQUEÑO ---
 logo_path = "hunter1.png" 
-
-col_l, col_c, col_r = st.columns([1.5, 1, 1.5]) # Ajustamos columnas para achicar el centro
+col_l, col_c, col_r = st.columns([1.5, 1, 1.5])
 with col_c:
     if os.path.exists(logo_path):
-        st.image(logo_path, width=160) # Tamaño reducido a 160px
+        st.image(logo_path, width=150)
     else:
         st.markdown(f"<h1 style='text-align:center; color:{color_naranja_alo};'>ALÓ CREDIT</h1>", unsafe_allow_html=True)
 
@@ -88,14 +82,15 @@ with c1:
 with c2:
     tipo_persona = st.radio("Tipo de Persona", ["Natural", "Jurídica"], horizontal=True)
 
+archivo_word = ""
 if categoria == "Contrato de Alianza Comercial":
     archivo_word = "contratonatural.docx" if tipo_persona == "Natural" else "contratojuridica.docx"
 else:
     archivo_word = "Djnatural.docx" if tipo_persona == "Natural" else "djpersonajuridica.docx"
 
-# --- FORMULARIO ---
+# --- FORMULARIO CORREGIDO ---
 with st.form("form_final"):
-    st.markdown("<h2 style='text-align:center; margin-bottom:20px;'>Registro de Información</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center;'>Registro de Información</h2>", unsafe_allow_html=True)
     
     r1c1, r1c2 = st.columns(2)
     with r1c1:
@@ -115,8 +110,36 @@ with st.form("form_final"):
     with r3c2:
         ciudad = st.text_input("Ciudad de Firma", value="Lima")
     
+    rep_legal, dni_rep, partida, asiento = "", "", "", ""
     if tipo_persona == "Jurídica":
-        st.markdown("<hr style='border: 1px solid #ddd;'>", unsafe_allow_html=True)
+        st.markdown("<hr>", unsafe_allow_html=True)
         cx, cy = st.columns(2)
         with cx:
-            rep_legal = st.text_input("Representante Legal
+            rep_legal = st.text_input("Representante Legal")
+            dni_rep = st.text_input("DNI Representante")
+        with cy:
+            partida = st.text_input("Partida N°")
+            asiento = st.text_input("Asiento N°")
+
+    st.write("")
+    enviar = st.form_submit_button("GENERAR DOCUMENTO OFICIAL")
+
+if enviar:
+    try:
+        doc = DocxTemplate(archivo_word)
+        meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+        hoy = datetime.now()
+        
+        contexto = {
+            "nombre_persona_natural": nombre, "nombre_persona_juridica": nombre,
+            "nombres_apellidos": nombre, "numero_dni": dni_rep if tipo_persona == "Jurídica" else documento,
+            "numero_ruc": documento, "numero_documento": documento,
+            "direccion": direccion, "correo_electronico": correo, "numero_telefono": telefono,
+            "nombre_representante_legal": rep_legal, "numero_asiento": asiento,
+            "numero_partida_registral": partida, "ciudad": ciudad,
+            "fecha_texto": f"{hoy.day} de {meses[hoy.month - 1]} de {hoy.year}",
+            "dni_x": "X", "pas_x": " ", "ce_x": " "
+        }
+        
+        doc.render(contexto)
+        output =
