@@ -71,7 +71,7 @@ with st.form("form_smart_final"):
             "correo_electronico": correo, "ciudad": ciudad, "dni_x": "X"
         }
     else:
-        # SECCIÓN JURÍDICA COMPLETA
+        # SECCIÓN JURÍDICA COMPLETA (Mapeo basado en tu archivo djpersonajuridica.docx)
         st.subheader("Datos del Representante Legal")
         row1_col1, row1_col2 = st.columns(2)
         with row1_col1:
@@ -114,7 +114,13 @@ with st.form("form_smart_final"):
 # --- PROCESAMIENTO ---
 if submit:
     try:
-        archivo = "Djnatural.docx" if tipo_persona == "Natural" else "djpersonajuridica.docx.docx"
+        # Definición de nombres de archivo según GitHub
+        if tipo_persona == "Natural":
+            archivo = "Djnatural.docx"
+        else:
+            # Aquí se asume que el archivo en GitHub se llama djpersonajuridica.docx
+            archivo = "djpersonajuridica.docx"
+            
         doc = DocxTemplate(archivo)
         
         hoy = datetime.now()
@@ -123,7 +129,7 @@ if submit:
         
         doc.render(contexto)
 
-        # REEMPLAZO FORZADO DE PARTIDA (Si sigue apareciendo el número antiguo)
+        # REEMPLAZO FORZADO (Para asegurar que la partida fija se cambie)
         if tipo_persona == "Jurídica":
             for table in doc.tables:
                 for row in table.rows:
@@ -135,7 +141,7 @@ if submit:
         doc.save(output)
         output.seek(0)
         
-        st.success("✅ ¡Documento generado!")
-        st.download_button(label="📥 DESCARGAR ARCHIVO", data=output, file_name=f"Smart_Security_Doc.docx")
+        st.success("✅ ¡Documento generado correctamente!")
+        st.download_button(label="📥 DESCARGAR ARCHIVO", data=output, file_name=f"DJ_{tipo_persona}.docx")
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Error: No se encontró el archivo '{archivo}' en GitHub. Revisa que el nombre sea exacto.")
