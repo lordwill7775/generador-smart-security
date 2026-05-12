@@ -1,77 +1,76 @@
 import streamlit as st
-from docxtpl import DocxTemplate
-import io
-import os
+from fpdf import FPDF
 from datetime import datetime
-from docx2pdf import convert
-import pythoncom # Necesario para evitar errores de hilos en Windows/Servidores
+import io
 
 st.set_page_config(page_title="Smart Security PDF", page_icon="🛡️")
-st.title("🛡️ Generador de PDF Smart Security")
+st.title("🛡️ Generador PDF Smart Security")
 
-archivos = {
-    "Contrato Persona Natural": "contratonatural.docx",
-    "DJ Persona Natural": "Djnatural.docx",
-    "Contrato Persona Jurídica": "contratojuridica.docx",
-    "DJ Persona Jurídica": "djpersonajuridica.docx"
-}
+# Opciones de documentos
+opcion = st.selectbox("Selecciona el documento", [
+    "Contrato de Alianza Comercial", 
+    "Declaración Jurada de Conocimiento"
+])
 
-opcion = st.selectbox("¿Qué documento vas a convertir a PDF?", list(archivos.keys()))
+tipo_persona = st.radio("Tipo de Persona", ["Natural", "Jurídica"], horizontal=True)
 
 with st.form("formulario"):
+    st.subheader("Datos del Cliente")
     nombre = st.text_input("Nombres y Apellidos / Razón Social")
     documento = st.text_input("DNI / RUC")
     direccion = st.text_input("Dirección")
     
-    # Campos adicionales para Jurídica
-    rep_legal, partida, asiento = "", "", ""
-    if "Jurídica" in opcion:
+    if tipo_persona == "Jurídica":
+        st.subheader("Datos Legales")
         rep_legal = st.text_input("Representante Legal")
         partida = st.text_input("Partida Registral")
         asiento = st.text_input("Asiento")
-
+    
     enviar = st.form_submit_button("GENERAR PDF")
 
 if enviar:
     try:
-        # 1. Crear el Word temporalmente en memoria
-        doc = DocxTemplate(archivos[opcion])
-        contexto = {
-            "nombre_persona_natural": nombre,
-            "nombre_persona_juridica": nombre,
-            "nombres_apellidos": nombre,
-            "numero_dni": documento,
-            "numero_ruc": documento,
-            "direccion": direccion,
-            "nombre_representante_legal": rep_legal,
-            "numero_partida_registral": partida,
-            "numero_asiento": asiento,
-            "fecha_texto": datetime.now().strftime("%d de %B de %Y")
-        }
-        doc.render(contexto)
+        # Configuración del PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", 'B', 16)
         
-        # Guardar Word temporal
-        temp_word = "temp.docx"
-        temp_pdf = "temp.pdf"
-        doc.save(temp_word)
+        # Título
+        pdf.cell(200, 10, txt=f"{opcion.upper()}", ln=True, align='C')
+        pdf.ln(10)
         
-        # 2. Convertir Word a PDF
-        # Nota: En Streamlit Cloud esto requiere una configuración de entorno específica. 
-        # Si usas Linux en el servidor, se usa 'libreoffice'.
-        st.info("Convirtiendo a PDF... por favor espera.")
-        os.system(f"lowriter --headless --convert-to pdf {temp_word}")
+        # Contenido
+        pdf.set_font("Arial", size=12)
+        fecha_hoy = datetime.now().strftime("%d/%m/%Y")
         
-        # 3. Leer el PDF generado para la descarga
-        with open(temp_pdf, "rb") as f:
-            pdf_data = f.read()
-
-        st.success("✅ PDF generado correctamente")
+        texto = f"""
+        Por el presente documento, se deja constancia de la información brindada:
+        
+        TITULAR: {nombre}
+        DOCUMENTO: {documento}
+        DIRECCIÓN: {direccion}
+        FECHA: {fecha_hoy}
+        """
+        
+        if tipo_persona == "Jurídica":
+            texto += f"""
+        REPRESENTANTE LEGAL: {rep_legal}
+        PARTIDA REGISTRAL: {partida}
+        ASIENTO: {asiento}
+            """
+        
+        pdf.multi_cell(0, 10, txt=texto)
+        
+        # Generar archivo en memoria
+        pdf_output = pdf.output(dest='S').encode('latin-1')
+        
+        st.success("✅ PDF generado con éxito")
         st.download_button(
             label="📥 DESCARGAR PDF",
-            data=pdf_data,
-            file_name=f"{nombre}_{opcion}.pdf",
+            data=pdf_output,
+            file_name=f"{nombre}_documento.pdf",
             mime="application/pdf"
         )
         
     except Exception as e:
-        st.error(f"Error al crear el PDF: {e}")
+        st.error(f"Error: {e}")
