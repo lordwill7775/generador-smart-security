@@ -6,7 +6,7 @@ from datetime import datetime
 st.set_page_config(page_title="Smart Security Docs", page_icon="🛡️")
 st.title("🛡️ Generador Smart Security")
 
-# Mapeo exacto de tus archivos en GitHub
+# Mapeo de archivos (asegúrate de que los nombres en GitHub sean estos)
 archivos = {
     "Contrato Persona Natural": "contratonatural.docx",
     "DJ Persona Natural": "Djnatural.docx",
@@ -28,20 +28,20 @@ with st.form("formulario"):
     correo = st.text_input("Correo Electrónico")
     telefono = st.text_input("Teléfono")
     
-    # Variables vacías por defecto
+    # Variables de control para datos de empresa
     rep_legal, dni_rep, partida, asiento = "", "", "", ""
     
-    # Si es Jurídica, mostrar campos extra
+    # Solo muestra estos campos si eliges una opción Jurídica
     if "Jurídica" in opcion:
-        st.subheader("Datos Legales (Persona Jurídica)")
+        st.subheader("Datos de la Empresa / Representante")
         rep_legal = st.text_input("Nombre del Representante Legal")
         dni_rep = st.text_input("DNI del Representante")
-        partida = st.text_input("Partida Registral N°")
-        asiento = st.text_input("Asiento N°")
+        partida = st.text_input("Número de Partida Registral")
+        asiento = st.text_input("Número de Asiento")
     
-    st.subheader("Configuración")
-    ciudad = st.text_input("Ciudad de Firma", value="Lima")
-    tipo_doc = st.radio("Tipo de Documento del titular", ["DNI", "Pasaporte", "CE"], horizontal=True)
+    st.subheader("Configuración de Firma")
+    ciudad = st.text_input("Ciudad de firma", value="Lima")
+    tipo_doc = st.radio("Documento del titular", ["DNI", "Pasaporte", "CE"], horizontal=True)
     fecha_sel = st.date_input("Fecha del documento", datetime.now())
     
     meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -53,7 +53,7 @@ if enviar:
     try:
         doc = DocxTemplate(archivos[opcion])
         
-        # Diccionario con todas las etiquetas que corregiste en los Word
+        # Este diccionario tiene todas las etiquetas que tus Word necesitan
         contexto = {
             "nombre_persona_natural": nombre,
             "nombre_persona_juridica": nombre,
@@ -83,12 +83,12 @@ if enviar:
         nombre_archivo = f"{nombre}_{opcion}.docx"
         
     except Exception as e:
-        st.error(f"Error al procesar: {e}. Revisa las llaves en tus Word.")
+        st.error(f"Error al procesar el Word: {e}. Revisa que todas las llaves esten bien cerradas en tu archivo.")
 
 if descarga_lista:
-    st.success(f"✅ ¡{opcion} listo para descargar!")
+    st.success(f"✅ ¡{opcion} generado correctamente!")
     st.download_button(
-        label="📥 DESCARGAR AHORA",
+        label="📥 DESCARGAR ARCHIVO",
         data=output.getvalue(),
         file_name=nombre_archivo,
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
