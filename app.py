@@ -1,76 +1,89 @@
 import streamlit as st
-from fpdf import FPDF
-from datetime import datetime
+from docxtpl import DocxTemplate
+import aspose.words as aw
 import io
+import os
+from datetime import datetime
 
 st.set_page_config(page_title="Smart Security PDF", page_icon="🛡️")
-st.title("🛡️ Generador PDF Smart Security")
+st.title("🛡️ Generador de Contratos PDF")
 
-# Opciones de documentos
-opcion = st.selectbox("Selecciona el documento", [
-    "Contrato de Alianza Comercial", 
-    "Declaración Jurada de Conocimiento"
-])
+# Diccionario con tus formatos originales
+archivos = {
+    "Contrato Persona Natural": "contratonatural.docx",
+    "DJ Persona Natural": "Djnatural.docx",
+    "Contrato Persona Jurídica": "contratojuridica.docx",
+    "DJ Persona Jurídica": "djpersonajuridica.docx"
+}
 
-tipo_persona = st.radio("Tipo de Persona", ["Natural", "Jurídica"], horizontal=True)
+opcion = st.selectbox("Selecciona el formato de Word a usar:", list(archivos.keys()))
 
 with st.form("formulario"):
-    st.subheader("Datos del Cliente")
+    st.subheader("Datos para el documento")
     nombre = st.text_input("Nombres y Apellidos / Razón Social")
     documento = st.text_input("DNI / RUC")
     direccion = st.text_input("Dirección")
     
-    if tipo_persona == "Jurídica":
-        st.subheader("Datos Legales")
+    rep_legal, dni_rep, partida, asiento = "", "", "", ""
+    if "Jurídica" in opcion:
+        st.subheader("Datos de Empresa")
         rep_legal = st.text_input("Representante Legal")
+        dni_rep = st.text_input("DNI del Representante")
         partida = st.text_input("Partida Registral")
         asiento = st.text_input("Asiento")
-    
-    enviar = st.form_submit_button("GENERAR PDF")
+
+    enviar = st.form_submit_button("GENERAR PDF FINAL")
 
 if enviar:
     try:
-        # Configuración del PDF
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", 'B', 16)
+        # 1. Cargar tu Word original y rellenar datos
+        doc_tpl = DocxTemplate(archivos[opcion])
         
-        # Título
-        pdf.cell(200, 10, txt=f"{opcion.upper()}", ln=True, align='C')
-        pdf.ln(10)
+        meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+        hoy = datetime.now()
+        fecha_formateada = f"{hoy.day} de {meses[hoy.month - 1]} de {hoy.year}"
+
+        contexto = {
+            "nombre_persona_natural": nombre,
+            "nombre_persona_juridica": nombre,
+            "nombres_apellidos": nombre,
+            "numero_dni": dni_rep if "Jurídica" in opcion else documento,
+            "numero_ruc": documento,
+            "numero_documento": documento,
+            "direccion": direccion,
+            "dirección": direccion,
+            "nombre_representante_legal": rep_legal,
+            "numero_asiento": asiento,
+            "numero_partida_registral": partida,
+            "fecha_texto": fecha_formateada,
+            "dni_x": "X", "pas_x": " ", "ce_x": " "
+        }
         
-        # Contenido
-        pdf.set_font("Arial", size=12)
-        fecha_hoy = datetime.now().strftime("%d/%m/%Y")
+        doc_tpl.render(contexto)
         
-        texto = f"""
-        Por el presente documento, se deja constancia de la información brindada:
+        # 2. Guardar temporalmente para convertir
+        temp_word = "temp_render.docx"
+        temp_pdf = "resultado.pdf"
+        doc_tpl.save(temp_word)
         
-        TITULAR: {nombre}
-        DOCUMENTO: {documento}
-        DIRECCIÓN: {direccion}
-        FECHA: {fecha_hoy}
-        """
+        # 3. Convertir Word a PDF manteniendo el formato
+        doc_aw = aw.Document(temp_word)
+        doc_aw.save(temp_pdf)
         
-        if tipo_persona == "Jurídica":
-            texto += f"""
-        REPRESENTANTE LEGAL: {rep_legal}
-        PARTIDA REGISTRAL: {partida}
-        ASIENTO: {asiento}
-            """
-        
-        pdf.multi_cell(0, 10, txt=texto)
-        
-        # Generar archivo en memoria
-        pdf_output = pdf.output(dest='S').encode('latin-1')
-        
-        st.success("✅ PDF generado con éxito")
+        with open(temp_pdf, "rb") as f:
+            pdf_bytes = f.read()
+
+        st.success("✅ ¡PDF generado usando tu formato Word!")
         st.download_button(
             label="📥 DESCARGAR PDF",
-            data=pdf_output,
-            file_name=f"{nombre}_documento.pdf",
+            data=pdf_bytes,
+            file_name=f"{nombre}_{opcion}.pdf",
             mime="application/pdf"
         )
         
+        # Limpieza
+        if os.path.exists(temp_word): os.remove(temp_word)
+        if os.path.exists(temp_pdf): os.remove(temp_pdf)
+
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Error: {e}. Asegúrate de que el archivo '{archivos[opcion]}' esté en tu GitHub.")
