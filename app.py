@@ -1,12 +1,14 @@
 import streamlit as st
 from docxtpl import DocxTemplate
 import io
+import os
 from datetime import datetime
+from docx2pdf import convert
+import pythoncom # Necesario para evitar errores de hilos en Windows/Servidores
 
-st.set_page_config(page_title="Smart Security Docs", page_icon="🛡️")
-st.title("🛡️ Generador Smart Security")
+st.set_page_config(page_title="Smart Security PDF", page_icon="🛡️")
+st.title("🛡️ Generador de PDF Smart Security")
 
-# Mapeo de archivos (asegúrate de que los nombres en GitHub sean estos)
 archivos = {
     "Contrato Persona Natural": "contratonatural.docx",
     "DJ Persona Natural": "Djnatural.docx",
@@ -14,82 +16,62 @@ archivos = {
     "DJ Persona Jurídica": "djpersonajuridica.docx"
 }
 
-opcion = st.selectbox("¿Qué documento vas a generar?", list(archivos.keys()))
-
-descarga_lista = False
-output = io.BytesIO()
-nombre_archivo = ""
+opcion = st.selectbox("¿Qué documento vas a convertir a PDF?", list(archivos.keys()))
 
 with st.form("formulario"):
-    st.subheader("Información General")
     nombre = st.text_input("Nombres y Apellidos / Razón Social")
     documento = st.text_input("DNI / RUC")
     direccion = st.text_input("Dirección")
-    correo = st.text_input("Correo Electrónico")
-    telefono = st.text_input("Teléfono")
     
-    # Variables de control para datos de empresa
-    rep_legal, dni_rep, partida, asiento = "", "", "", ""
-    
-    # Solo muestra estos campos si eliges una opción Jurídica
+    # Campos adicionales para Jurídica
+    rep_legal, partida, asiento = "", "", ""
     if "Jurídica" in opcion:
-        st.subheader("Datos de la Empresa / Representante")
-        rep_legal = st.text_input("Nombre del Representante Legal")
-        dni_rep = st.text_input("DNI del Representante")
-        partida = st.text_input("Número de Partida Registral")
-        asiento = st.text_input("Número de Asiento")
-    
-    st.subheader("Configuración de Firma")
-    ciudad = st.text_input("Ciudad de firma", value="Lima")
-    tipo_doc = st.radio("Documento del titular", ["DNI", "Pasaporte", "CE"], horizontal=True)
-    fecha_sel = st.date_input("Fecha del documento", datetime.now())
-    
-    meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
-    fecha_formateada = f"{fecha_sel.day} de {meses[fecha_sel.month - 1]} de {fecha_sel.year}"
+        rep_legal = st.text_input("Representante Legal")
+        partida = st.text_input("Partida Registral")
+        asiento = st.text_input("Asiento")
 
-    enviar = st.form_submit_button("GENERAR DOCUMENTO")
+    enviar = st.form_submit_button("GENERAR PDF")
 
 if enviar:
     try:
+        # 1. Crear el Word temporalmente en memoria
         doc = DocxTemplate(archivos[opcion])
-        
-        # Este diccionario tiene todas las etiquetas que tus Word necesitan
         contexto = {
             "nombre_persona_natural": nombre,
             "nombre_persona_juridica": nombre,
             "nombres_apellidos": nombre,
-            "numero_dni": dni_rep if "Jurídica" in opcion else documento,
+            "numero_dni": documento,
             "numero_ruc": documento,
-            "numero_documento": documento,
             "direccion": direccion,
-            "dirección": direccion,
-            "dirección_declarada": direccion,
-            "correo_electronico": correo,
-            "numero_telefono": telefono,
-            "numero_celular": telefono,
-            "ciudad": ciudad,
-            "fecha_texto": fecha_formateada,
             "nombre_representante_legal": rep_legal,
-            "numero_asiento": asiento,
             "numero_partida_registral": partida,
-            "dni_x": "X" if tipo_doc == "DNI" else " ",
-            "pas_x": "X" if tipo_doc == "Pasaporte" else " ",
-            "ce_x": "X" if tipo_doc == "CE" else " "
+            "numero_asiento": asiento,
+            "fecha_texto": datetime.now().strftime("%d de %B de %Y")
         }
-        
         doc.render(contexto)
-        doc.save(output)
-        descarga_lista = True
-        nombre_archivo = f"{nombre}_{opcion}.docx"
+        
+        # Guardar Word temporal
+        temp_word = "temp.docx"
+        temp_pdf = "temp.pdf"
+        doc.save(temp_word)
+        
+        # 2. Convertir Word a PDF
+        # Nota: En Streamlit Cloud esto requiere una configuración de entorno específica. 
+        # Si usas Linux en el servidor, se usa 'libreoffice'.
+        st.info("Convirtiendo a PDF... por favor espera.")
+        os.system(f"lowriter --headless --convert-to pdf {temp_word}")
+        
+        # 3. Leer el PDF generado para la descarga
+        with open(temp_pdf, "rb") as f:
+            pdf_data = f.read()
+
+        st.success("✅ PDF generado correctamente")
+        st.download_button(
+            label="📥 DESCARGAR PDF",
+            data=pdf_data,
+            file_name=f"{nombre}_{opcion}.pdf",
+            mime="application/pdf"
+        )
         
     except Exception as e:
-        st.error(f"Error al procesar el Word: {e}. Revisa que todas las llaves esten bien cerradas en tu archivo.")
-
-if descarga_lista:
-    st.success(f"✅ ¡{opcion} generado correctamente!")
-    st.download_button(
-        label="📥 DESCARGAR ARCHIVO",
-        data=output.getvalue(),
-        file_name=nombre_archivo,
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
+        st.error(f"Error al crear el PDF: {e}")
