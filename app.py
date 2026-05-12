@@ -11,7 +11,7 @@ st.set_page_config(page_title="Aló Credit | Portal de Documentos", page_icon="�
 color_azul_oscuro = "#001B3D"
 color_naranja_alo = "#FF7F00"
 
-# --- DISEÑO UI PROFESIONAL (MONTSERRAT + AZUL MARINO) ---
+# --- DISEÑO UI PROFESIONAL ---
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
@@ -21,30 +21,37 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
     
+    /* MEJORA DE VISIBILIDAD PARA ETIQUETAS SOBRE EL FONDO AZUL */
+    [data-testid="stHeader"] {{background: rgba(0,0,0,0);}}
+    
+    .stSelectbox label, .stRadio label, [data-testid="stMarkdownContainer"] p {{
+        color: #FFFFFF !important;
+        font-family: 'Montserrat', sans-serif !important;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* Sombra para resaltar sobre el fondo */
+        font-weight: 700 !important;
+    }}
+
+    /* TARJETA DEL FORMULARIO (TEXTO OSCURO PARA CONTRASTE) */
     [data-testid="stForm"] {{
         background: rgba(255, 255, 255, 0.95) !important; 
         backdrop-filter: blur(20px);
         border-radius: 30px !important;
         padding: 40px !important;
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
     }}
 
-    /* Etiquetas y títulos en azul marino para legibilidad */
-    h2, p, label, .stMarkdown, [data-testid="stWidgetLabel"] p {{
+    [data-testid="stForm"] label, [data-testid="stForm"] h2 {{
         color: {color_azul_oscuro} !important;
-        font-family: 'Montserrat', sans-serif !important;
-        font-weight: 700 !important;
+        text-shadow: none !important;
     }}
 
     .stTextInput>div>div>input {{
         background-color: white !important;
         border: 1px solid #ccc !important;
         color: black !important;
-        border-radius: 8px !important;
     }}
     
-    /* Botón corporativo con texto blanco */
+    /* BOTÓN CORPORATIVO */
     .stButton>button {{
         background-color: {color_azul_oscuro} !important;
         color: #FFFFFF !important;
@@ -55,7 +62,6 @@ st.markdown(f"""
         padding: 12px !important;
         width: 100%;
         text-transform: uppercase;
-        transition: 0.3s;
     }}
     
     .stButton>button:hover {{
@@ -66,7 +72,6 @@ st.markdown(f"""
     """, unsafe_allow_html=True)
 
 # --- CABECERA: MANEJO DEL LOGO ---
-# El código busca los nombres de archivos que aparecen en tu GitHub
 logo_final = None
 for nombre in ["hunter1.png", "cazador1.png", "hunter.png"]:
     if os.path.exists(nombre):
@@ -82,21 +87,20 @@ with col_c:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- SELECTORES ---
+# --- SELECTORES (AHORA CON LETRAS BLANCAS LEGIBLES) ---
 c1, c2 = st.columns(2)
 with c1:
     categoria = st.selectbox("📂 Tipo de Documento", ["Contrato de Alianza Comercial", "Declaración Jurada"])
 with c2:
     tipo_persona = st.radio("👤 Perfil de Cliente", ["Natural", "Jurídica"], horizontal=True)
 
-# Definición de plantillas
 if categoria == "Contrato de Alianza Comercial":
     archivo_word = "contratonatural.docx" if tipo_persona == "Natural" else "contratojuridica.docx"
 else:
     archivo_word = "Djnatural.docx" if tipo_persona == "Natural" else "djpersonajuridica.docx"
 
-# --- FORMULARIO CORREGIDO ---
-with st.form("form_registro_final"):
+# --- FORMULARIO ---
+with st.form("form_final"):
     st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
     
     r1c1, r1c2 = st.columns(2)
@@ -128,7 +132,6 @@ with st.form("form_registro_final"):
             partida = st.text_input("Partida N°")
             asiento = st.text_input("Asiento N°")
 
-    # El botón DEBE estar dentro del formulario
     enviar = st.form_submit_button("🚀 GENERAR DOCUMENTO OFICIAL")
 
 # --- PROCESAMIENTO ---
@@ -166,6 +169,6 @@ if enviar:
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             )
         except Exception as e:
-            st.error(f"Error: Asegúrate de que {archivo_word} esté en GitHub.")
+            st.error(f"Error técnico. Verifica que las plantillas existan.")
 
-st.markdown("<p style='text-align: center; color: #001B3D; font-weight: bold;'>Willy Ríos | Hunter Business</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: white; font-weight: bold;'>Willy Ríos | Hunter Business</p>", unsafe_allow_html=True)
