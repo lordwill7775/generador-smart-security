@@ -62,7 +62,7 @@ with c2:
     tipo_persona = st.radio("👤 Perfil", ["Natural", "Jurídica"], horizontal=True)
 
 # --- FORMULARIO DE REGISTRO ---
-with st.form("form_smart_security_v17"):
+with st.form("form_smart_security_v18"):
     st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
     
     if tipo_persona == "Natural":
@@ -78,19 +78,19 @@ with st.form("form_smart_security_v17"):
             telefono = st.text_input("Teléfono / Celular")
             ciudad = st.text_input("Ciudad de Firma", value="Lima")
         
-        # SECCIÓN NATURAL OPTIMIZADA CON BLINDAJE DE DIRECCIONES
+        # Corregida la asignación de ciudad aquí quitando el :=
         if categoria == "Declaración Jurada":
             contexto = {
                 "nombres_apellidos": nombre, 
                 "numero_documento": documento,
-                "dirección_declarada": direccion,    # Con tilde
-                "direccion_declarada": direccion,     # Sin tilde (Por seguridad)
-                "dirección": direccion,               # Formato alternativo
-                "direccion": direccion,                # Formato básico
+                "dirección_declarada": direccion,    
+                "direccion_declarada": direccion,     
+                "dirección": direccion,               
+                "direccion": direccion,                
                 "numero_telefono": telefono,
                 "telefono": telefono,
                 "correo_electronico": correo, 
-                "ciudad": city := ciudad, 
+                "ciudad": ciudad, 
                 "pais": pais,
                 "dni_x": "X"
             }
@@ -137,8 +137,76 @@ with st.form("form_smart_security_v17"):
             asiento = st.text_input("N° de Asiento")
             ciudad_f = st.text_input("Ciudad de Firma", value="Lima")
 
-        # SECCIÓN JURÍDICA CORRECTAMENTE ESTRUCTURADA
+        # Corregida la asignación de ciudad aquí también
         contexto = {
             "nombre_persona_natural": rep_legal,
             "numero_dni": dni_rep,
-            "fecha_texto_nacimiento": fecha_nac_rep
+            "fecha_texto_nacimiento": fecha_nac_rep,
+            "nacionalidad": nacionalidad_rep,
+            "correo_electronico": correo_rep,
+            "numero_telefono": tel_rep,            
+            "telefono": tel_rep,                   
+            "razon_social": razon_social,          
+            "numero_ruc": ruc,                     
+            "dirección": direccion_emp,             
+            "direccion": direccion_emp,              
+            "dirección_declarada": direccion_emp,
+            "direccion_declarada": direccion_emp,
+            "numero_partida_registral": partida,
+            "numero_asiento": asiento,
+            "ciudad": ciudad_f,                    
+            "pais": "PERÚ",                        
+            "dni_x": "X",
+            "pas_x": " ", "ce_x": " ", "sol_x": " ", "cas_x": " ", "div_x": " ", "viu_x": " ", "con_x": " "
+        }
+        nombre_para_archivo = razon_social.replace(" ", "_") if razon_social else "Juridica"
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    submit = st.form_submit_button("🚀 GENERAR DOCUMENTO OFICIAL")
+
+# --- LÓGICA DE PROCESAMIENTO ---
+if submit:
+    try:
+        if categoria == "Declaración Jurada":
+            if tipo_persona == "Natural":
+                archivo = "Djnatural.docx"
+            else:
+                archivo = "djpersonajuridica.docx.docx" if os.path.exists("djpersonajuridica.docx.docx") else "djpersonajuridica.docx"
+        else:
+            archivo = "contratonatural.docx" if tipo_persona == "Natural" else "contratojuridica.docx"
+            
+        doc = DocxTemplate(archivo)
+        
+        hoy = datetime.now()
+        meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+        contexto["fecha_texto"] = f"{hoy.day} de {meses[hoy.month - 1]} de {hoy.year}"
+        
+        doc.render(contexto)
+
+        if tipo_persona == "Jurídica":
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        if "11641837" in cell.text:
+                            cell.text = cell.text.replace("11641837", contexto["numero_partida_registral"])
+
+        output = io.BytesIO()
+        doc.save(output)
+        output.seek(0)
+        
+        st.balloons()
+        st.success("✅ ¡Documento estructurado y generado con éxito!")
+        
+        tipo_doc_nombre = "DJ" if categoria == "Declaración Jurada" else "Contrato"
+        
+        st.download_button(
+            label="📥 CLIC AQUÍ PARA DESCARGAR WORD", 
+            data=output, 
+            file_name=f"{tipo_doc_nombre}_{nombre_para_archivo}.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+    except Exception as e:
+        st.error(f"Error: Asegúrate de que '{archivo}' esté en tu repositorio de GitHub.")
+        st.info(f"Detalle técnico: {e}")
+
+st.markdown("<p style='text-align: center; color: white; font-size: 12px; margin-top: 50px;'>Willy Ríos | Smart Security © 2026</p>", unsafe_allow_html=True)
