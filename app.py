@@ -62,7 +62,7 @@ with c2:
     tipo_persona = st.radio("👤 Perfil", ["Natural", "Jurídica"], horizontal=True)
 
 # --- FORMULARIO DE REGISTRO ---
-with st.form("form_smart_security_v10"):
+with st.form("form_smart_security_v11"):
     st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
     
     if tipo_persona == "Natural":
@@ -74,12 +74,11 @@ with st.form("form_smart_security_v10"):
             pais = st.text_input("País de Origen/Residencia", value="PERÚ")
         with col2:
             documento = st.text_input("DNI / CE")
-            # Añadimos RUC opcional en Persona Natural por si se genera el contrato
-            ruc_natural = st.text_input("RUC (Opcional, solo para Contrato)")
+            ruc_natural = st.text_input("RUC (Opcional, necesario para Contrato)")
             telefono = st.text_input("Teléfono / Celular")
             ciudad = st.text_input("Ciudad de Firma", value="Lima")
         
-        # Mapeo inteligente según el documento elegido para Persona Natural
+        # Mapeo de datos inteligente según la selección para Persona Natural
         if categoria == "Declaración Jurada":
             contexto = {
                 "nombres_apellidos": nombre, 
@@ -92,12 +91,14 @@ with st.form("form_smart_security_v10"):
                 "dni_x": "X"
             }
         else:
-            # Llaves exactas para 'contratonatural.docx' basándonos en tu captura
+            # Aquí añadimos las llaves que faltaban en la tabla final del contrato (Teléfono y Correo)
             contexto = {
                 "nombre_persona_natural": nombre,
                 "direccion": direccion,
                 "numero_ruc": ruc_natural,
                 "numero_dni": documento,
+                "numero_telefono": telefono,       # <- Corregido para la tabla inferior
+                "correo_electronico": correo,     # <- Corregido para la tabla inferior
                 "ciudad": ciudad,
                 "pais": pais
             }
@@ -142,7 +143,7 @@ with st.form("form_smart_security_v10"):
             "dirección_declarada": direccion_emp,
             "numero_partida_registral": partida,
             "numero_asiento": asiento,
-            "ciudad": city_f if 'city_f' in locals() else ciudad_f,
+            "ciudad": ciudad_f,
             "pais": "PERÚ", "dni_x": "X",
             "pas_x": " ", "ce_x": " ", "sol_x": " ", "cas_x": " ", "div_x": " ", "viu_x": " ", "con_x": " "
         }
@@ -154,23 +155,26 @@ with st.form("form_smart_security_v10"):
 # --- LÓGICA DE PROCESAMIENTO ---
 if submit:
     try:
-        # Selección correcta del archivo en base a las opciones
+        # Selección del archivo controlando las extensiones exactas
         if categoria == "Declaración Jurada":
-            archivo = "Djnatural.docx" if tipo_persona == "Natural" else "djpersonajuridica.docx"
+            if tipo_persona == "Natural":
+                archivo = "Djnatural.docx"
+            else:
+                # Soporte de seguridad: busca con doble extensión si es necesario
+                archivo = "djpersonajuridica.docx.docx" if os.path.exists("djpersonajuridica.docx.docx") else "djpersonajuridica.docx"
         else:
             archivo = "contratonatural.docx" if tipo_persona == "Natural" else "contratojuridica.docx"
             
         doc = DocxTemplate(archivo)
         
-        # Inyección de la fecha actual en formato texto
+        # Formateo de fecha automática
         hoy = datetime.now()
         meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
         contexto["fecha_texto"] = f"{hoy.day} de {meses[hoy.month - 1]} de {hoy.year}"
         
-        # Renderizado de datos final
         doc.render(contexto)
 
-        # Reemplazo forzado para corregir la partida fija en Persona Jurídica
+        # Reemplazo dinámico del número de partida fijo (SUNARP AREQUIPA)
         if tipo_persona == "Jurídica":
             for table in doc.tables:
                 for row in table.rows:
@@ -194,7 +198,7 @@ if submit:
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
     except Exception as e:
-        st.error(f"Error: Asegúrate de que '{archivo}' esté subido correctamente a tu GitHub.")
+        st.error(f"Error: Asegúrate de que '{archivo}' esté en tu repositorio de GitHub.")
         st.info(f"Detalle técnico: {e}")
 
 st.markdown("<p style='text-align: center; color: white; font-size: 12px; margin-top: 50px;'>Willy Ríos | Smart Security © 2026</p>", unsafe_allow_html=True)
