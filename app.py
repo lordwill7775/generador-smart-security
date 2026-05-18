@@ -19,33 +19,46 @@ st.markdown("""
     footer {visibility: hidden;}
     .stDeployButton {display:none;}
     
-    /* FONDO DE LA APLICACIÓN */
+    /* --- FONDO CON EL GIF ANIMADO ELEGIDO --- */
     .stApp { 
-        background: radial-gradient(circle at 20% 30%, #003a85 0%, #001B3D 60%, #FF7F00 130%) !important; 
-        background-attachment: fixed; 
+        background-image: url("https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOWp3d3F0N2g3YmE4b2o0a3puMmVzbHhwM3E1emI3NjFyNHRreDZraiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LtiTOVzhzvGuXaea2m/giphy.gif") !important; 
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important; 
+        background-repeat: no-repeat !important;
     }
     
-    /* --- CORRECCIÓN DE COLOR PARA TEXTOS SOBRE EL FONDO AZUL --- */
-    /* Cambia a blanco el texto del selector principal y de las preguntas que están afuera */
+    /* Capa oscura de contraste sobre el GIF para que las letras resalten con fuerza */
+    .stApp::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 15, 38, 0.4); /* Filtro oscuro sutil */
+        z-index: -1;
+    }
+    
+    /* --- COLOR DE TEXTOS FUERA DEL FORMULARIO (SOBRE EL GIF) --- */
     .stSelectbox label p, .stNumberInput label p, .stRadio label p, p {
         color: #FFFFFF !important;
         font-family: 'Montserrat', sans-serif !important;
         font-weight: 600;
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.9); /* Sombra negra para legibilidad perfecta */
     }
     
-    /* --- CONTENEDOR DE LOS FORMULARIOS (NO SE CAMBIA, SE MANTIENE BLANCO) --- */
+    /* --- CONTENEDOR DE LOS FORMULARIOS (SE MANTIENE BLANCO INTACTO) --- */
     [data-testid="stForm"] { 
         background-color: #FFFFFF !important; 
         border-radius: 20px !important; 
         padding: 25px !important; 
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
+        box-shadow: 0 15px 35px rgba(0,0,0,0.6); 
     }
     
-    /* Textos internos del formulario se mantienen oscuros para que contrasten con el fondo blanco */
+    /* Textos internos del formulario */
     [data-testid="stForm"] label p, [data-testid="stForm"] h2, [data-testid="stForm"] h3 { 
         color: #001B3D !important; 
         font-family: 'Montserrat', sans-serif !important; 
         font-weight: 700; 
+        text-shadow: none !important; /* Sin sombra adentro para que se vea limpio */
     }
     [data-testid="stForm"] input { color: #000000 !important; }
     
