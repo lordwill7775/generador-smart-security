@@ -239,26 +239,4 @@ else:
                 else:
                     contexto = {
                         "nombre_persona_natural": nombre, "direccion": direccion, "dirección": direccion,
-                        "dirección_declarada": direccion, "direccion_declarada": direccion,
-                        "numero_ruc": ruc_natural, "numero_dni": documento,
-                        "numero_telefono": telefono, "telefono": telefono,
-                        "correo_electronico": correo, "ciudad": ciudad, "pais": pais
-                    }
-                datos_excel = {
-                    "Fecha Registro": [datetime.now().strftime("%d/%m/%Y")], "Tipo Documento": [categoria],
-                    "Perfil": ["Natural"], "Nombre / Razón Social": [nombre], "DNI / CE": [documento],
-                    "RUC": [ruc_natural], "Dirección": [direccion], "Teléfono": [telefono],
-                    "Correo": [correo], "Ciudad": [ciudad]
-                }
-                nombre_para_archivo = nombre.replace(" ", "_") if nombre else "Natural"
-            else:
-                contexto = {
-                    "nombre_persona_natural": rep_legal_old, "numero_dni": dni_rep,
-                    "fecha_texto_nacimiento": fecha_nac_rep, "nacionalidad": nacionalidad_rep,
-                    "correo_electronico": correo_rep, "numero_telefono": tel_rep, "telefono": tel_rep,                   
-                    "razon_social": razon_social_old, "numero_ruc": ruc_old,                     
-                    "dirección": direccion_emp, "direccion": direccion_emp,              
-                    "dirección_declarada": direccion_emp, "direccion_declarada": direccion_emp,
-                    "numero_partida_registral": partida, "numero_asiento": asiento,
-                    "ciudad": ciudad_f, "pais": "PERÚ", "dni_x": "X",
-                    "pas_x": " ", "ce_x": " ", "sol_x": " ", "
+                        "dirección_declarada":
