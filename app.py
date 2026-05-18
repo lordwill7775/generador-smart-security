@@ -19,22 +19,37 @@ st.markdown("""
     footer {visibility: hidden;}
     .stDeployButton {display:none;}
     
+    /* FONDO DE LA APLICACIÓN */
     .stApp { 
         background: radial-gradient(circle at 20% 30%, #003a85 0%, #001B3D 60%, #FF7F00 130%) !important; 
         background-attachment: fixed; 
     }
+    
+    /* --- CORRECCIÓN DE COLOR PARA TEXTOS SOBRE EL FONDO AZUL --- */
+    /* Cambia a blanco el texto del selector principal y de las preguntas que están afuera */
+    .stSelectbox label p, .stNumberInput label p, .stRadio label p, p {
+        color: #FFFFFF !important;
+        font-family: 'Montserrat', sans-serif !important;
+        font-weight: 600;
+    }
+    
+    /* --- CONTENEDOR DE LOS FORMULARIOS (NO SE CAMBIA, SE MANTIENE BLANCO) --- */
     [data-testid="stForm"] { 
         background-color: #FFFFFF !important; 
         border-radius: 20px !important; 
         padding: 25px !important; 
         box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
     }
+    
+    /* Textos internos del formulario se mantienen oscuros para que contrasten con el fondo blanco */
     [data-testid="stForm"] label p, [data-testid="stForm"] h2, [data-testid="stForm"] h3 { 
         color: #001B3D !important; 
         font-family: 'Montserrat', sans-serif !important; 
         font-weight: 700; 
     }
     [data-testid="stForm"] input { color: #000000 !important; }
+    
+    /* Botón del Formulario */
     [data-testid="stForm"] button { 
         background-color: #001B3D !important; 
         color: white !important; 
@@ -132,7 +147,6 @@ if categoria == "Formato Creación Usuarios":
             ws = wb["ORIENTE SMART"]
             
             # --- DETECTOR INTELIGENTE DE CELDAS DE RESPUESTA ---
-            # Escaneamos las primeras 5 columnas y 100 filas buscando las etiquetas para escribir exactamente al costado
             fila_inicio_tiendas = None
             fila_inicio_vendedores = None
             
@@ -146,7 +160,7 @@ if categoria == "Formato Creación Usuarios":
                         ws.cell(row=row, column=col+1, value=razon_social.upper())
                     elif "RUC" in celda_val:
                         ws.cell(row=row, column=col+1, value=ruc)
-                    elif "CORREO" in celda_val and row < 20: # Filtrar cabecera de vendedores
+                    elif "CORREO" in celda_val and row < 20:
                         ws.cell(row=row, column=col+1, value=correo.upper())
                     elif "CELULAR 1" in celda_val or "TELEFONO 1" in celda_val:
                         ws.cell(row=row, column=col+1, value=telefono1)
@@ -159,17 +173,14 @@ if categoria == "Formato Creación Usuarios":
                     elif "NUMERO DE CUENTA" in celda_val or "NÚMERO DE CUENTA" in celda_val:
                         ws.cell(row=row, column=col+1, value=n_cuenta)
                         
-                    # Detectar inicios de tablas
                     if "NOMBRE TIENDA" in celda_val and fila_inicio_tiendas is None:
                         fila_inicio_tiendas = row + 1
                     elif "NOMBRE TIENDA" in celda_val and fila_inicio_tiendas is not None:
                         fila_inicio_vendedores = row + 1
 
-            # Respaldos de seguridad si falla la lectura dinámica de tablas
             if not fila_inicio_tiendas: fila_inicio_tiendas = 22
             if not fila_inicio_vendedores: fila_inicio_vendedores = 42
 
-            # Insertar relación de tiendas
             for tienda in lista_tiendas:
                 if tienda["nombre"]:
                     ws.cell(row=fila_inicio_tiendas, column=2, value=tienda["nombre"].upper())
@@ -178,7 +189,6 @@ if categoria == "Formato Creación Usuarios":
                     ws.cell(row=fila_inicio_tiendas, column=5, value=tienda["ciudad"].upper())
                     fila_inicio_tiendas += 1
             
-            # Insertar relación de vendedores
             for usuario in lista_usuarios:
                 if usuario["nombre"]:
                     ws.cell(row=fila_inicio_vendedores, column=2, value=usuario["tienda"].upper())
@@ -273,13 +283,13 @@ else:
                         "dirección_declarada": direccion, "direccion_declarada": direccion,
                         "numero_ruc": ruc_natural, "numero_dni": documento,
                         "numero_telefono": telefono, "telefono": telefono,
-                        "correo_electronico": correo, "ciudad": city, "pais": pais
+                        "correo_electronico": correo, "ciudad": ciudad, "pais": pais
                     }
                 datos_excel = {
                     "Fecha Registro": [datetime.now().strftime("%d/%m/%Y")], "Tipo Documento": [categoria],
                     "Perfil": ["Natural"], "Nombre / Razón Social": [nombre], "DNI / CE": [documento],
                     "RUC": [ruc_natural], "Dirección": [direccion], "Teléfono": [telefono],
-                    "Correo": [correo], "Ciudad": [city]
+                    "Correo": [correo], "Ciudad": [ciudad]
                 }
                 nombre_para_archivo = nombre.replace(" ", "_") if nombre else "Natural"
             else:
@@ -369,4 +379,4 @@ else:
             st.error(f"Error: Revisa que tus plantillas base .docx estén cargadas en GitHub.")
             st.info(f"Detalle técnico: {e}")
 
-st.markdown("<p style='text-align: center; color: white; font-size: 12px; margin-top: 50px;'>Wieldy Ríos | Smart Security © 2026</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: white; font-size: 12px; margin-top: 50px;'>Willy Ríos | Smart Security © 2026</p>", unsafe_allow_html=True)
