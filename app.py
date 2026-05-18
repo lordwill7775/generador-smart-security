@@ -83,7 +83,7 @@ if categoria == "Formato Creación Usuarios":
         
         # --- SELECCIÓN DINÁMICA DE CANTIDADES ---
         st.markdown("### ⚙️ Configuración de Filas")
-        num_tiendas = st.number_input("¿Cuántas tiendas desea registrar?", min_value=1, max_value=20, value=1, step=1)
+        num_tiendas = st.number_input("¿Cuántas tiendas desea registrar?", min_value=1, max_value=15, value=1, step=1)
         num_usuarios = st.number_input("¿Cuántos usuarios / vendedores desea registrar?", min_value=1, max_value=50, value=1, step=1)
 
         # --- SECCIÓN: TIENDAS DINÁMICAS ---
@@ -121,65 +121,54 @@ if categoria == "Formato Creación Usuarios":
 
     if submit_u:
         try:
-            output_excel = io.BytesIO()
+            import openpyxl
             
-            # Encabezado base del Excel
-            filas_excel = [
-                ["", "FORMATO CREACION USUARIOS", "", "", ""],
-                ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""],
-                ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""],
-                ["", "NOMBRE DE  REPRESENTANTE LEGAL:", rep_legal.upper(), "", ""],
-                ["", "NOMBRE DE TIENDA:", razon_social.upper(), "", ""],
-                ["", "RUC:", ruc, "", ""],
-                ["", "CORREO:", correo, "", ""],
-                ["", "NUMERO CELULAR 1:", telefono1, "", ""],
-                ["", "NUMERO CELULAR 2:", telefono2, "", ""],
-                ["", "BANCO:", banco.upper(), "", ""],
-                ["", "TIPO DE CUENTA:", tipo_cuenta.upper(), "", ""],
-                ["", "NUMERO DE CUENTA:", n_cuenta, "", ""],
-                ["", "", "", "", ""], 
-                ["", "Relacione cada tienda:", "", "", ""],
-                ["", "", "", "", ""], ["", "", "", "", ""],
-                ["", "NOMBRE TIENDA", "DIRECCION", "DEPARTAMENTO", "CIUDAD"]
-            ]
+            archivo_plantilla = "USUARIOS MILAGROS.xlsx"
+            if not os.path.exists(archivo_plantilla):
+                st.error(f"❌ No se encontró el archivo '{archivo_plantilla}' en tu GitHub. Por favor, súbelo con ese nombre exacto.")
+                st.stop()
+                
+            # Cargar la plantilla manteniendo tu diseño intacto
+            wb = openpyxl.load_workbook(archivo_plantilla)
+            ws = wb["ORIENTE SMART"]
             
-            # Insertar dinámicamente las tiendas que el usuario llenó
+            # Rellenar Datos Generales según las coordenadas de tu archivo
+            ws['B8'] = rep_legal.upper()
+            ws['B9'] = razon_social.upper()
+            ws['B10'] = ruc
+            ws['B11'] = correo.upper()
+            ws['B12'] = telefono1
+            ws['B13'] = telefono2
+            ws['B14'] = banco.upper()
+            ws['B15'] = tipo_cuenta.upper()
+            ws['B16'] = n_cuenta
+            
+            # Insertar tiendas a partir de la fila 22
+            fila_tienda = 22
             for tienda in lista_tiendas:
                 if tienda["nombre"]:
-                    filas_excel.append([
-                        "", 
-                        tienda["nombre"].upper(), 
-                        tienda["direccion"].upper(), 
-                        tienda["departamento"].upper(), 
-                        tienda["ciudad"].upper()
-                    ])
-                
-            # Separador e hilos de usuarios
-            filas_excel.extend([
-                ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""],
-                ["", "Relacione aquí cada de usuario con su tienda asignada:", "", "", ""],
-                ["", "", "", "", ""],
-                ["", "NOMBRE TIENDA", "NOMBRE VENDEDOR", "CORREO", "CELULAR"]
-            ])
+                    ws[f'B{fila_tienda}'] = tienda["nombre"].upper()
+                    ws[f'C{fila_tienda}'] = tienda["direccion"].upper()
+                    ws[f'D{fila_tienda}'] = tienda["departamento"].upper()
+                    ws[f'E{fila_tienda}'] = tienda["ciudad"].upper()
+                    fila_tienda += 1
             
-            # Insertar dinámicamente los vendedores que el usuario llenó
+            # Insertar vendedores a partir de la fila 42
+            fila_usuario = 42
             for usuario in lista_usuarios:
                 if usuario["nombre"]:
-                    filas_excel.append([
-                        "", 
-                        usuario["tienda"].upper(), 
-                        usuario["nombre"].upper(), 
-                        usuario["correo"], 
-                        usuario["celular"]
-                    ])
-                
-            df_usuarios = pd.DataFrame(filas_excel)
-            with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
-                df_usuarios.to_excel(writer, index=False, header=False, sheet_name="ORIENTE SMART")
+                    ws[f'B{fila_usuario}'] = usuario["tienda"].upper()
+                    ws[f'C{fila_usuario}'] = usuario["nombre"].upper()
+                    ws[f'D{fila_usuario}'] = usuario["correo"]
+                    ws[f'E{fila_usuario}'] = usuario["celular"]
+                    fila_usuario += 1
+            
+            output_excel = io.BytesIO()
+            wb.save(output_excel)
             output_excel.seek(0)
             
             st.balloons()
-            st.success("✅ ¡Formato de Creación de Usuarios generado con éxito!")
+            st.success("✅ ¡Formato de Creación de Usuarios generado con tu diseño corporativo!")
             nombre_file = razon_social.replace(" ", "_") if razon_social else "Usuarios"
             st.download_button(
                 label="📊 DESCARGAR EXCEL DE USUARIOS", 
@@ -188,7 +177,7 @@ if categoria == "Formato Creación Usuarios":
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
         except Exception as e:
-            st.error(f"Ocurrió un error al armar el Excel: {e}")
+            st.error(f"Ocurrió un error al procesar la plantilla de Excel: {e}")
 
 # =========================================================================
 # VISTA 2: FORMULARIOS ANTERIORES (CONTRATOS Y DJ TRADICIONALES)
