@@ -63,7 +63,7 @@ if categoria != "Formato Creación Usuarios":
     tipo_persona = st.radio("👤 Perfil", ["Natural", "Jurídica"], horizontal=True)
 
 # --- FORMULARIO DE REGISTRO ---
-with st.form("form_smart_security_v21"):
+with st.form("form_smart_security_v22"):
     st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
     
     # -------------------------------------------------------------------------
@@ -121,7 +121,7 @@ with st.form("form_smart_security_v21"):
         nombre_para_archivo = razon_social.replace(" ", "_") if razon_social else "Usuarios"
 
     # -------------------------------------------------------------------------
-    # CASO ANTERIOR: PERSONA NATURAL (INALTERADO)
+    # CASO ANTERIOR: PERSONA NATURAL
     # -------------------------------------------------------------------------
     elif tipo_persona == "Natural":
         col1, col2 = st.columns(2)
@@ -141,143 +141,4 @@ with st.form("form_smart_security_v21"):
                 "nombres_apellidos": nombre, 
                 "numero_documento": documento,
                 "dirección_declarada": direccion,    
-                "direccion_declarada": direccion,     
-                "dirección": direccion,               
-                "direccion": direccion,                
-                "numero_telefono": telefono,
-                "telefono": telefono,
-                "correo_electronico": correo, 
-                "ciudad": ciudad, 
-                "pais": pais,
-                "dni_x": "X"
-            }
-        else:
-            contexto = {
-                "nombre_persona_natural": nombre,
-                "direccion": direccion,
-                "dirección": direccion,
-                "dirección_declarada": direccion,
                 "direccion_declarada": direccion,
-                "numero_ruc": ruc_natural,
-                "numero_dni": documento,
-                "numero_telefono": telefono,       
-                "telefono": telefono,
-                "correo_electronico": correo,     
-                "ciudad": ciudad,
-                "pais": pais
-            }
-            
-        datos_excel = {
-            "Fecha Registro": [datetime.now().strftime("%d/%m/%Y")],
-            "Tipo Documento": [categoria],
-            "Perfil": ["Natural"],
-            "Nombre / Razón Social": [nombre],
-            "DNI / CE": [documento],
-            "RUC": [ruc_natural],
-            "Dirección": [direccion],
-            "Teléfono": [telefono],
-            "Correo": [correo],
-            "Ciudad": [ciudad]
-        }
-        nombre_para_archivo = nombre.replace(" ", "_") if nombre else "Natural"
-        
-    # -------------------------------------------------------------------------
-    # CASO ANTERIOR: PERSONA JURÍDICA (INALTERADO)
-    # -------------------------------------------------------------------------
-    else:
-        st.markdown("### 👤 Datos del Representante Legal")
-        r1c1, r1c2 = st.columns(2)
-        with r1c1:
-            rep_legal = st.text_input("Nombres y Apellidos (Representante)")
-            dni_rep = st.text_input("DNI del Representante")
-            fecha_nac_rep = st.text_input("Fecha de Nacimiento (DD/MM/AAAA)")
-        with r1c2:
-            nacionalidad_rep = st.text_input("Nacionalidad", value="PERUANA")
-            correo_rep = st.text_input("Correo Electrónico")
-            tel_rep = st.text_input("Teléfono de Contacto")
-
-        st.markdown("<hr style='border: 0.5px solid #001B3D;'>", unsafe_allow_html=True)
-        st.markdown("### 🏢 Datos de la Empresa")
-        r2c1, r2c2 = st.columns(2)
-        with r2c1:
-            razon_social = st.text_input("Razón Social")
-            ruc = st.text_input("RUC")
-            partida = st.text_input("N° de Partida Registral")
-        with r2c2:
-            direccion_emp = st.text_input("Dirección Fiscal")
-            asiento = st.text_input("N° de Asiento")
-            ciudad_f = st.text_input("Ciudad de Firma", value="Lima")
-
-        contexto = {
-            "nombre_persona_natural": rep_legal,
-            "numero_dni": dni_rep,
-            "fecha_texto_nacimiento": fecha_nac_rep,
-            "nacionalidad": nacionalidad_rep,
-            "correo_electronico": correo_rep,
-            "numero_telefono": tel_rep,            
-            "telefono": tel_rep,                   
-            "razon_social": razon_social,          
-            "numero_ruc": ruc,                     
-            "dirección": direccion_emp,             
-            "direccion": direccion_emp,              
-            "dirección_declarada": direccion_emp,
-            "direccion_declarada": direccion_emp,
-            "numero_partida_registral": partida,
-            "numero_asiento": asiento,
-            "ciudad": ciudad_f,                    
-            "pais": "PERÚ",                        
-            "dni_x": "X",
-            "pas_x": " ", "ce_x": " ", "sol_x": " ", "cas_x": " ", "div_x": " ", "viu_x": " ", "con_x": " "
-        }
-        
-        datos_excel = {
-            "Fecha Registro": [datetime.now().strftime("%d/%m/%Y")],
-            "Tipo Documento": [categoria],
-            "Perfil": ["Jurídica"],
-            "Nombre / Razón Social": [razon_social],
-            "DNI / CE": [dni_rep],
-            "RUC": [ruc],
-            "Dirección": [direccion_emp],
-            "Teléfono": [tel_rep],
-            "Correo": [correo_rep],
-            "Ciudad": [ciudad_f],
-            "Representante Legal": [rep_legal],
-            "Partida Registral": [partida],
-            "Asiento": [asiento]
-        }
-        nombre_para_archivo = razon_social.replace(" ", "_") if razon_social else "Juridica"
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    submit = st.form_submit_button("🚀 GENERAR DOCUMENTO OFICIAL")
-
-# --- LÓGICA DE PROCESAMIENTO ---
-if submit:
-    try:
-        # -------------------------------------------------------------------------
-        # PROCESAMIENTO EXCLUSIVO: GENERACIÓN DEL EXCEL DE CREACIÓN DE USUARIOS
-        # -------------------------------------------------------------------------
-        if categoria == "Formato Creación Usuarios":
-            output_excel = io.BytesIO()
-            
-            # Recreación de las filas en blanco y estructura exacta de tu plantilla
-            filas_excel = [
-                ["", "FORMATO CREACION USUARIOS", "", "", ""],
-                ["", "", "", "", ""],
-                ["", "", "", "", ""],
-                ["", "", "", "", ""],
-                ["", "", "", "", ""],
-                ["", "", "", "", ""],
-                ["", "", "", "", ""],
-                ["", "NOMBRE DE  REPRESENTANTE LEGAL:", rep_legal.upper(), "", ""],
-                ["", "NOMBRE DE TIENDA:", razon_social.upper(), "", ""],
-                ["", "RUC:", ruc, "", ""],
-                ["", "CORREO:", correo, "", ""],
-                ["", "NUMERO CELULAR 1:", telefono1, "", ""],
-                ["", "NUMERO CELULAR 2:", telefono2, "", ""],
-                ["", "BANCO:", banco.upper(), "", ""],
-                ["", "TIPO DE CUENTA:", tipo_cuenta.upper(), "", ""],
-                ["", "NUMERO DE CUENTA:", n_cuenta, "", ""],
-                ["", "", "", "", ""],
-                ["", "Relacione cada tienda:", "", "", ""],
-                ["", "", "", "", ""],
-                ["", "", "", "", ""],
