@@ -63,7 +63,7 @@ if categoria != "Formato Creación Usuarios":
     tipo_persona = st.radio("👤 Perfil", ["Natural", "Jurídica"], horizontal=True)
 
 # --- FORMULARIO DE REGISTRO ---
-with st.form("form_smart_security_v22"):
+with st.form("form_smart_security_v23"):
     st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
     
     # -------------------------------------------------------------------------
@@ -71,74 +71,4 @@ with st.form("form_smart_security_v22"):
     # -------------------------------------------------------------------------
     if categoria == "Formato Creación Usuarios":
         st.markdown("### 🏢 Datos Generales de la Empresa")
-        col1, col2 = st.columns(2)
-        with col1:
-            rep_legal = st.text_input("Nombre del Representante Legal")
-            razon_social = st.text_input("Nombre de Tienda / Razón Social")
-            ruc = st.text_input("RUC")
-            correo = st.text_input("Correo Electrónico")
-        with col2:
-            telefono1 = st.text_input("Número Celular 1")
-            telefono2 = st.text_input("Número Celular 2")
-            banco = st.text_input("Banco (ej. BBVA, BCP)")
-            tipo_cuenta = st.text_input("Tipo de Cuenta", value="AHORROS")
-            n_cuenta = st.text_input("Número de Cuenta + CCI")
-
-        st.markdown("<hr style='border: 0.5px solid #001B3D;'>", unsafe_allow_html=True)
-        st.markdown("### 📍 Relación de Tiendas")
-        
-        col_t1, col_t2 = st.columns(2)
-        with col_t1:
-            st.markdown("**Tienda 1**")
-            t1_nom = st.text_input("Nombre Tienda 1")
-            t1_dir = st.text_input("Dirección Tienda 1")
-            t1_dep = st.text_input("Departamento Tienda 1", value="LIMA")
-            t1_ciu = st.text_input("Ciudad / Distrito Tienda 1")
-        with col_t2:
-            st.markdown("**Tienda 2 (Opcional)**")
-            t2_nom = st.text_input("Nombre Tienda 2")
-            t2_dir = st.text_input("Dirección Tienda 2")
-            t2_dep = st.text_input("Departamento Tienda 2", value="LIMA")
-            t2_ciu = st.text_input("Ciudad / Distrito Tienda 2")
-
-        st.markdown("<hr style='border: 0.5px solid #001B3D;'>", unsafe_allow_html=True)
-        st.markdown("### 👥 Relación de Usuarios / Vendedores")
-        
-        col_v1, col_v2 = st.columns(2)
-        with col_v1:
-            st.markdown("**Vendedor 1**")
-            v1_tnd = st.text_input("Tienda Asignada Vendedor 1")
-            v1_nom = st.text_input("Nombre Completo Vendedor 1")
-            v1_crr = st.text_input("Correo Vendedor 1")
-            v1_cel = st.text_input("Celular Vendedor 1")
-        with col_v2:
-            st.markdown("**Vendedor 2 (Opcional)**")
-            v2_tnd = st.text_input("Tienda Asignada Vendedor 2")
-            v2_nom = st.text_input("Nombre Completo Vendedor 2")
-            v2_crr = st.text_input("Correo Vendedor 2")
-            v2_cel = st.text_input("Celular Vendedor 2")
-
-        nombre_para_archivo = razon_social.replace(" ", "_") if razon_social else "Usuarios"
-
-    # -------------------------------------------------------------------------
-    # CASO ANTERIOR: PERSONA NATURAL
-    # -------------------------------------------------------------------------
-    elif tipo_persona == "Natural":
-        col1, col2 = st.columns(2)
-        with col1:
-            nombre = st.text_input("Nombres y Apellidos")
-            direccion = st.text_input("Dirección / Domicilio Declarado")
-            correo = st.text_input("Correo Electrónico")
-            pais = st.text_input("País de Origen/Residencia", value="PERÚ")
-        with col2:
-            documento = st.text_input("DNI / CE")
-            ruc_natural = st.text_input("RUC (Opcional, necesario para Contrato)")
-            telefono = st.text_input("Teléfono / Celular")
-            ciudad = st.text_input("Ciudad de Firma", value="Lima")
-        
-        if categoria == "Declaración Jurada":
-            contexto = {
-                "nombres_apellidos": nombre, 
-                "numero_documento": documento,
-                "dirección_declarada": direccion,    
-                "direccion_declarada": direccion,
+        col1,
