@@ -87,4 +87,62 @@ if categoria == "Formato Creación Usuarios":
             t1_nom = st.text_input("Nombre Tienda 1")
             t1_dir = st.text_input("Dirección Tienda 1")
             t1_dep = st.text_input("Departamento Tienda 1", value="LIMA")
-            t1_ciu = st.text_input
+            t1_ciu = st.text_input("Ciudad / Distrito Tienda 1")
+        with col_t2:
+            st.markdown("**Tienda 2 (Opcional)**")
+            t2_nom = st.text_input("Nombre Tienda 2")
+            t2_dir = st.text_input("Dirección Tienda 2")
+            t2_dep = st.text_input("Departamento Tienda 2", value="LIMA")
+            t2_ciu = st.text_input("Ciudad / Distrito Tienda 2")
+
+        st.markdown("<hr style='border: 0.5px solid #001B3D;'>", unsafe_allow_html=True)
+        st.markdown("### 👥 Relación de Usuarios / Vendedores")
+        col_v1, col_v2 = st.columns(2)
+        with col_v1:
+            st.markdown("**Vendedor 1**")
+            v1_tnd = st.text_input("Tienda Asignada Vendedor 1")
+            v1_nom = st.text_input("Nombre Completo Vendedor 1")
+            v1_crr = st.text_input("Correo Vendedor 1")
+            v1_cel = st.text_input("Celular Vendedor 1")
+        with col_v2:
+            st.markdown("**Vendedor 2 (Opcional)**")
+            v2_tnd = st.text_input("Tienda Asignada Vendedor 2")
+            v2_nom = st.text_input("Nombre Completo Vendedor 2")
+            v2_crr = st.text_input("Correo Vendedor 2")
+            v2_cel = st.text_input("Celular Vendedor 2")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        submit_u = st.form_submit_button("🚀 GENERAR EXCEL DE USUARIOS")
+
+    if submit_u:
+        try:
+            output_excel = io.BytesIO()
+            filas_excel = [
+                ["", "FORMATO CREACION USUARIOS", "", "", ""],
+                ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""],
+                ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""],
+                ["", "NOMBRE DE  REPRESENTANTE LEGAL:", rep_legal.upper(), "", ""],
+                ["", "NOMBRE DE TIENDA:", razon_social.upper(), "", ""],
+                ["", "RUC:", ruc, "", ""],
+                ["", "CORREO:", correo, "", ""],
+                ["", "NUMERO CELULAR 1:", telefono1, "", ""],
+                ["", "NUMERO CELULAR 2:", telefono2, "", ""],
+                ["", "BANCO:", banco.upper(), "", ""],
+                ["", "TIPO DE CUENTA:", tipo_cuenta.upper(), "", ""],
+                ["", "NUMERO DE CUENTA:", n_cuenta, "", ""],
+                ["", "", "", "", ""], 
+                ["", "Relacione cada tienda:", "", "", ""],
+                ["", "", "", "", ""], ["", "", "", "", ""],
+                ["", "NOMBRE TIENDA", "DIRECCION", "DEPARTAMENTO", "CIUDAD"]
+            ]
+            if t1_nom:
+                filas_excel.append(["", t1_nom.upper(), t1_dir.upper(), t1_dep.upper(), t1_ciu.upper()])
+            if t2_nom:
+                filas_excel.append(["", t2_nom.upper(), t2_dir.upper(), t2_dep.upper(), t2_ciu.upper()])
+                
+            filas_excel.extend([
+                ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""],
+                ["", "Relacione aquí cada de usuario con su tienda asignada:", "", "", ""],
+                ["", "", "", "", ""],
+                ["", "NOMBRE TIENDA", "NOMBRE VENDEDOR", "CORREO", "CELULAR"]
+            ])
