@@ -123,16 +123,17 @@ if categoria == "Formato Creación Usuarios":
         try:
             import openpyxl
             
-            archivo_plantilla = "USUARIOS MILAGROS.xlsx"
+            # Línea corregida con tu nombre de archivo real
+            archivo_plantilla = "USUARIOS.xlsx"
             if not os.path.exists(archivo_plantilla):
-                st.error(f"❌ No se encontró el archivo '{archivo_plantilla}' en tu GitHub. Por favor, súbelo con ese nombre exacto.")
+                st.error(f"❌ No se encontró el archivo '{archivo_plantilla}' en tu GitHub. Por favor, súbelo con ese nombre exacto en mayúsculas.")
                 st.stop()
                 
             # Cargar la plantilla manteniendo tu diseño intacto
             wb = openpyxl.load_workbook(archivo_plantilla)
             ws = wb["ORIENTE SMART"]
             
-            # Rellenar Datos Generales según las coordenadas de tu archivo
+            # Rellenar Datos Generales según tu diseño
             ws['B8'] = rep_legal.upper()
             ws['B9'] = razon_social.upper()
             ws['B10'] = ruc
@@ -237,13 +238,13 @@ else:
             nombre_para_archivo = "Documento"
             
             if tipo_persona == "Natural":
-                if categoria == "Declaración Jurada":
+                if category == "Declaración Jurada":
                     contexto = {
                         "nombres_apellidos": nombre, "numero_documento": documento,
                         "dirección_declarada": direccion, "direccion_declarada": direccion,     
                         "dirección": direccion, "direccion": direccion,                
                         "numero_telefono": telefono, "telefono": telefono,
-                        "correo_electronico": correo, "ciudad": ciudad, "pais": pais, "dni_x": "X"
+                        "correo_electronico": correo, "ciudad": city, "pais": pais, "dni_x": "X"
                     }
                 else:
                     contexto = {
@@ -251,13 +252,13 @@ else:
                         "dirección_declarada": direccion, "direccion_declarada": direccion,
                         "numero_ruc": ruc_natural, "numero_dni": documento,
                         "numero_telefono": telefono, "telefono": telefono,
-                        "correo_electronico": correo, "ciudad": ciudad, "pais": pais
+                        "correo_electronico": correo, "ciudad": city, "pais": pais
                     }
                 datos_excel = {
                     "Fecha Registro": [datetime.now().strftime("%d/%m/%Y")], "Tipo Documento": [categoria],
                     "Perfil": ["Natural"], "Nombre / Razón Social": [nombre], "DNI / CE": [documento],
                     "RUC": [ruc_natural], "Dirección": [direccion], "Teléfono": [telefono],
-                    "Correo": [correo], "Ciudad": [ciudad]
+                    "Correo": [correo], "Ciudad": [city]
                 }
                 nombre_para_archivo = nombre.replace(" ", "_") if nombre else "Natural"
             else:
