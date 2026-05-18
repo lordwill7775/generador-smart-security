@@ -10,7 +10,7 @@ st.set_page_config(page_title="Smart Security | Portal", page_icon="💳", layou
 # --- ESTILOS CORPORATIVOS ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght=700&display=swap');
     
     /* OCULTAR MENÚS DE STREAMLIT */
     #MainMenu {visibility: hidden;}
@@ -62,7 +62,7 @@ with c2:
     tipo_persona = st.radio("👤 Perfil", ["Natural", "Jurídica"], horizontal=True)
 
 # --- FORMULARIO DE REGISTRO ---
-with st.form("form_smart_security_v12"):
+with st.form("form_smart_security_v13"):
     st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
     
     if tipo_persona == "Natural":
@@ -96,4 +96,50 @@ with st.form("form_smart_security_v12"):
                 "numero_ruc": ruc_natural,
                 "numero_dni": documento,
                 "numero_telefono": telefono,       
-                "correo_electron
+                "correo_electronico": correo,     
+                "ciudad": ciudad,
+                "pais": pais
+            }
+            
+        nombre_para_archivo = nombre.replace(" ", "_") if nombre else "Natural"
+        
+    else:
+        # SECCIÓN JURÍDICA
+        st.markdown("### 👤 Datos del Representante Legal")
+        r1c1, r1c2 = st.columns(2)
+        with r1c1:
+            rep_legal = st.text_input("Nombres y Apellidos (Representante)")
+            dni_rep = st.text_input("DNI del Representante")
+            fecha_nac_rep = st.text_input("Fecha de Nacimiento (DD/MM/AAAA)")
+        with r1c2:
+            nacionalidad_rep = st.text_input("Nacionalidad", value="PERUANA")
+            correo_rep = st.text_input("Correo Electrónico")
+            tel_rep = st.text_input("Teléfono de Contacto")
+
+        st.markdown("<hr style='border: 0.5px solid #001B3D;'>", unsafe_allow_html=True)
+        st.markdown("### 🏢 Datos de la Empresa")
+        r2c1, r2c2 = st.columns(2)
+        with r2c1:
+            razon_social = st.text_input("Razón Social")
+            ruc = st.text_input("RUC")
+            partida = st.text_input("N° de Partida Registral")
+        with r2c2:
+            direccion_emp = st.text_input("Dirección Fiscal")
+            asiento = st.text_input("N° de Asiento")
+            ciudad_f = st.text_input("Ciudad de Firma", value="Lima")
+
+        # Línea 99 arreglada perfectamente aquí:
+        contexto = {
+            "nombre_persona_natural": rep_legal,
+            "numero_dni": dni_rep,
+            "fecha_texto_nacimiento": fecha_nac_rep,
+            "nacionalidad": nacionalidad_rep,
+            "correo_electronico": correo_rep,
+            "numero_telefono": tel_rep,
+            "razon_social": razon_social,
+            "numero_ruc": ruc,
+            "dirección": direccion_emp,             
+            "direccion": direccion_emp,              
+            "dirección_declarada": direccion_emp,
+            "numero_partida_registral": partida,
+            "numero_asiento": asiento,
