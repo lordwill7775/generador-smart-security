@@ -19,29 +19,29 @@ st.markdown("""
     footer {visibility: hidden;}
     .stDeployButton {display:none;}
     
-    /* --- FONDO EN MOSAICO (REPETIDO) --- */
+    /* --- FONDO EN MOSAICO FINO (MÁXIMO CONTRASTE Y TEXTURA CHICA) --- */
     .stApp { 
-        background-image: url("https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOWp3d3F0N2g3YmE4b2o0a3puMmVzbHhwM3E1emI3NjFyNHRreDZraiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LtiTOVzhzvGuXaea2m/giphy.gif") !important; 
-        background-size: auto !important;        /* Mantiene el tamaño original del GIF */
-        background-repeat: repeat !important;     /* Activa el efecto mosaico en toda la pantalla */
+        background-image: url("https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXU2NWY0Mzgxcm0wZWlibGx5NDdndTc4amc3MzA3bzc0MjNyeGZreSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/pBQsB6tQkaMUDgCWfa/giphy.gif") !important; 
+        background-size: 60px !important;        /* Escala fija a ~1.5 cm por cuadro para que sea sutil */
+        background-repeat: repeat !important;     /* Efecto mosaico infinito */
         background-attachment: fixed !important; 
     }
     
-    /* Capa oscura de contraste sobre el mosaico para que las letras resalten con fuerza */
+    /* Capa oscura de contraste sobre el mosaico para proteger la lectura de textos */
     .stApp::before {
         content: "";
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0, 15, 38, 0.45); /* Filtro oscuro para legibilidad */
+        background-color: rgba(0, 10, 26, 0.5); /* Filtro oscuro para resaltar el blanco */
         z-index: -1;
     }
     
-    /* --- COLOR DE TEXTOS FUERA DEL FORMULARIO (SOBRE EL GIF) --- */
+    /* --- COLOR DE TEXTOS FUERA DEL FORMULARIO (SOBRE EL MOSAICO) --- */
     .stSelectbox label p, .stNumberInput label p, .stRadio label p, p {
         color: #FFFFFF !important;
         font-family: 'Montserrat', sans-serif !important;
         font-weight: 600;
-        text-shadow: 2px 2px 5px rgba(0,0,0,0.9); /* Sombra negra para que no se pierda nada */
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.9); /* Sombra nítida para lectura perfecta */
     }
     
     /* --- CONTENEDOR DE LOS FORMULARIOS (SE MANTIENE BLANCO INTACTO) --- */
