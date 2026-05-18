@@ -114,7 +114,6 @@ if categoria == "Formato Creación Usuarios":
         st.markdown("<br>", unsafe_allow_html=True)
         submit_u = st.form_submit_button("🚀 GENERAR EXCEL DE USUARIOS")
 
-    # TODO el procesamiento del Excel empaquetado correctamente dentro del evento del botón
     if submit_u:
         try:
             output_excel = io.BytesIO()
@@ -146,3 +145,30 @@ if categoria == "Formato Creación Usuarios":
                 ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""],
                 ["", "Relacione aquí cada de usuario con su tienda asignada:", "", "", ""],
                 ["", "", "", "", ""],
+                ["", "NOMBRE TIENDA", "NOMBRE VENDEDOR", "CORREO", "CELULAR"]
+            ]) # <-- Corchete de cierre corregido correctamente aquí
+            
+            if v1_nom:
+                filas_excel.append(["", v1_tnd.upper(), v1_nom.upper(), v1_crr, v1_cel])
+            if v2_nom:
+                filas_excel.append(["", v2_tnd.upper(), v2_nom.upper(), v2_crr, v2_cel])
+                
+            df_usuarios = pd.DataFrame(filas_excel)
+            with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
+                df_usuarios.to_excel(writer, index=False, header=False, sheet_name="ORIENTE SMART")
+            output_excel.seek(0)
+            
+            st.balloons()
+            st.success("✅ ¡Formato de Creación de Usuarios generado con éxito!")
+            nombre_file = razon_social.replace(" ", "_") if razon_social else "Usuarios"
+            st.download_button(
+                label="📊 DESCARGAR EXCEL DE USUARIOS", 
+                data=output_excel, 
+                file_name=f"Usuarios_{nombre_file}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        except Exception as e:
+            st.error(f"Ocurrió un error al armar el Excel: {e}")
+
+# =========================================================================
+# VISTA 2: FORMULARIOS
