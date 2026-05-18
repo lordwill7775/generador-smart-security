@@ -58,20 +58,14 @@ if os.path.exists("hunter1.png"):
 # --- SELECTOR PRINCIPAL ---
 categoria = st.selectbox("📂 Tipo de Documento", ["Declaración Jurada", "Contrato de Alianza Comercial", "Formato Creación Usuarios"])
 
-# Inicialización de variables globales vacías para evitar errores de compilación
-contexto = {}
-datos_excel = {}
-nombre_para_archivo = "Documento"
-
-# --- FORMULARIO DE REGISTRO ---
-with st.form("form_smart_security_v25"):
-    st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
-    
-    # =========================================================================
-    # BLOQUE 1: FORMULARIO EXCEL DE CREACIÓN DE USUARIOS
-    # =========================================================================
-    if categoria == "Formato Creación Usuarios":
+# =========================================================================
+# VISTA 1: FORMULARIO EXCLUSIVO PARA EXCEL DE CREACIÓN DE USUARIOS
+# =========================================================================
+if categoria == "Formato Creación Usuarios":
+    with st.form("form_creacion_usuarios"):
+        st.markdown("<h2 style='text-align:center;'>📝 Registro de Usuarios</h2>", unsafe_allow_html=True)
         st.markdown("### 🏢 Datos Generales de la Empresa")
+        
         col1, col2 = st.columns(2)
         with col1:
             rep_legal = st.text_input("Nombre del Representante Legal")
@@ -106,88 +100,4 @@ with st.form("form_smart_security_v25"):
         col_v1, col_v2 = st.columns(2)
         with col_v1:
             st.markdown("**Vendedor 1**")
-            v1_tnd = st.text_input("Tienda Asignada Vendedor 1")
-            v1_nom = st.text_input("Nombre Completo Vendedor 1")
-            v1_crr = st.text_input("Correo Vendedor 1")
-            v1_cel = st.text_input("Celular Vendedor 1")
-        with col_v2:
-            st.markdown("**Vendedor 2 (Opcional)**")
-            v2_tnd = st.text_input("Tienda Asignada Vendedor 2")
-            v2_nom = st.text_input("Nombre Completo Vendedor 2")
-            v2_crr = st.text_input("Correo Vendedor 2")
-            v2_cel = st.text_input("Celular Vendedor 2")
-
-        nombre_para_archivo = razon_social.replace(" ", "_") if razon_social else "Usuarios"
-
-    # =========================================================================
-    # BLOQUE 2: FORMULARIOS ANTIGUOS (CONTRATOS Y DJ)
-    # =========================================================================
-    else:
-        tipo_persona = st.radio("👤 Perfil", ["Natural", "Jurídica"], horizontal=True)
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        # --- SUB-BLOQUE: PERSONA NATURAL ---
-        if tipo_persona == "Natural":
-            col1, col2 = st.columns(2)
-            with col1:
-                nombre = st.text_input("Nombres y Apellidos")
-                direccion = st.text_input("Dirección / Domicilio Declarado")
-                correo = st.text_input("Correo Electrónico")
-                pais = st.text_input("País de Origen/Residencia", value="PERÚ")
-            with col2:
-                documento = st.text_input("DNI / CE")
-                ruc_natural = st.text_input("RUC (Opcional, necesario para Contrato)")
-                telefono = st.text_input("Teléfono / Celular")
-                ciudad = st.text_input("Ciudad de Firma", value="Lima")
-            
-            if categoria == "Declaración Jurada":
-                contexto = {
-                    "nombres_apellidos": nombre, 
-                    "numero_documento": documento,
-                    "dirección_declarada": direccion, 
-                    "direccion_declarada": direccion,     
-                    "dirección": direccion, 
-                    "direccion": direccion,                
-                    "numero_telefono": telefono, 
-                    "telefono": telefono,
-                    "correo_electronico": correo, 
-                    "ciudad": ciudad, 
-                    "pais": pais, 
-                    "dni_x": "X"
-                }
-            else:
-                contexto = {
-                    "nombre_persona_natural": nombre, 
-                    "direccion": direccion, 
-                    "dirección": direccion,
-                    "dirección_declarada": direccion, 
-                    "direccion_declarada": direccion,
-                    "numero_ruc": ruc_natural, 
-                    "numero_dni": documento,
-                    "numero_telefono": telefono, 
-                    "telefono": telefono,
-                    "correo_electronico": correo, 
-                    "ciudad": ciudad, 
-                    "pais": pais
-                }
-                
-            datos_excel = {
-                "Fecha Registro": [datetime.now().strftime("%d/%m/%Y")], 
-                "Tipo Documento": [categoria],
-                "Perfil": ["Natural"], 
-                "Nombre / Razón Social": [nombre], 
-                "DNI / CE": [documento],
-                "RUC": [ruc_natural], 
-                "Dirección": [direccion], 
-                "Teléfono": [telefono],
-                "Correo": [correo], 
-                "Ciudad": [ciudad]
-            }
-            nombre_para_archivo = nombre.replace(" ", "_") if nombre else "Natural"
-            
-        # --- SUB-BLOQUE: PERSONA JURÍDICA ---
-        else:
-            st.markdown("### 👤 Datos del Representante Legal")
-            r1c1, r1c2 = st.columns(2)
-            with r1c1:
-                rep_legal_old = st.text_input("Nombres y Apellidos (Representante)")
+            v1_t
