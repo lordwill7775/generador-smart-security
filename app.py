@@ -135,6 +135,7 @@ if categoria == "Formato Creación Usuarios":
                 ["", "", "", "", ""], ["", "", "", "", ""],
                 ["", "NOMBRE TIENDA", "DIRECCION", "DEPARTAMENTO", "CIUDAD"]
             ]
+            
             if t1_nom:
                 filas_excel.append(["", t1_nom.upper(), t1_dir.upper(), t1_dep.upper(), t1_ciu.upper()])
             if t2_nom:
@@ -146,3 +147,118 @@ if categoria == "Formato Creación Usuarios":
                 ["", "", "", "", ""],
                 ["", "NOMBRE TIENDA", "NOMBRE VENDEDOR", "CORREO", "CELULAR"]
             ])
+            
+            if v1_nom:
+                filas_excel.append(["", v1_tnd.upper(), v1_nom.upper(), v1_crr, v1_cel])
+            if v2_nom:
+                filas_excel.append(["", v2_tnd.upper(), v2_nom.upper(), v2_crr, v2_cel])
+                
+            df_usuarios = pd.DataFrame(filas_excel)
+            with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
+                df_usuarios.to_excel(writer, index=False, header=False, sheet_name="ORIENTE SMART")
+            output_excel.seek(0)
+            
+            st.balloons()
+            st.success("✅ ¡Formato de Creación de Usuarios generado con éxito!")
+            nombre_file = razon_social.replace(" ", "_") if razon_social else "Usuarios"
+            st.download_button(
+                label="📊 DESCARGAR EXCEL DE USUARIOS", 
+                data=output_excel, 
+                file_name=f"Usuarios_{nombre_file}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        except Exception as e:
+            st.error(f"Ocurrió un error al armar el Excel: {e}")
+
+# =========================================================================
+# VISTA 2: FORMULARIOS ANTERIORES (CONTRATOS Y DJ TRADICIONALES)
+# =========================================================================
+else:
+    tipo_persona = st.radio("👤 Perfil", ["Natural", "Jurídica"], horizontal=True)
+    
+    with st.form("form_documentos_tradicionales"):
+        st.markdown("<h2 style='text-align:center;'>📝 Registro de Información</h2>", unsafe_allow_html=True)
+        
+        # --- SUB-FORMULARIO: PERSONA NATURAL ---
+        if tipo_persona == "Natural":
+            col1, col2 = st.columns(2)
+            with col1:
+                nombre = st.text_input("Nombres y Apellidos")
+                direccion = st.text_input("Dirección / Domicilio Declarado")
+                correo = st.text_input("Correo Electrónico")
+                pais = st.text_input("País de Origen/Residencia", value="PERÚ")
+            with col2:
+                documento = st.text_input("DNI / CE")
+                ruc_natural = st.text_input("RUC (Opcional, necesario para Contrato)")
+                telefono = st.text_input("Teléfono / Celular")
+                ciudad = st.text_input("Ciudad de Firma", value="Lima")
+                
+        # --- SUB-FORMULARIO: PERSONA JURÍDICA ---
+        else:
+            st.markdown("### 👤 Datos del Representante Legal")
+            r1c1, r1c2 = st.columns(2)
+            with r1c1:
+                rep_legal_old = st.text_input("Nombres y Apellidos (Representante)")
+                dni_rep = st.text_input("DNI del Representante")
+                fecha_nac_rep = st.text_input("Fecha de Nacimiento (DD/MM/AAAA)")
+            with r1c2:
+                nacionalidad_rep = st.text_input("Nacionalidad", value="PERUANA")
+                correo_rep = st.text_input("Correo Electrónico")
+                tel_rep = st.text_input("Teléfono de Contacto")
+
+            st.markdown("<hr style='border: 0.5px solid #001B3D;'>", unsafe_allow_html=True)
+            st.markdown("### 🏢 Datos de la Empresa")
+            r2c1, r2c2 = st.columns(2)
+            with r2c1:
+                razon_social_old = st.text_input("Razón Social")
+                ruc_old = st.text_input("RUC")
+                partida = st.text_input("N° de Partida Registral")
+            with r2c2:
+                direccion_emp = st.text_input("Dirección Fiscal")
+                asiento = st.text_input("N° de Asiento")
+                ciudad_f = st.text_input("Ciudad de Firma", value="Lima")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        submit_doc = st.form_submit_button("🚀 GENERAR DOCUMENTO OFICIAL")
+
+    if submit_doc:
+        try:
+            contexto = {}
+            datos_excel = {}
+            nombre_para_archivo = "Documento"
+            
+            if tipo_persona == "Natural":
+                if categoria == "Declaración Jurada":
+                    contexto = {
+                        "nombres_apellidos": nombre, "numero_documento": documento,
+                        "dirección_declarada": direccion, "direccion_declarada": direccion,     
+                        "dirección": direccion, "direccion": direccion,                
+                        "numero_telefono": telefono, "telefono": telefono,
+                        "correo_electronico": correo, "ciudad": ciudad, "pais": pais, "dni_x": "X"
+                    }
+                else:
+                    contexto = {
+                        "nombre_persona_natural": nombre, "direccion": direccion, "dirección": direccion,
+                        "dirección_declarada": direccion, "direccion_declarada": direccion,
+                        "numero_ruc": ruc_natural, "numero_dni": documento,
+                        "numero_telefono": telefono, "telefono": telefono,
+                        "correo_electronico": correo, "ciudad": ciudad, "pais": pais
+                    }
+                datos_excel = {
+                    "Fecha Registro": [datetime.now().strftime("%d/%m/%Y")], "Tipo Documento": [categoria],
+                    "Perfil": ["Natural"], "Nombre / Razón Social": [nombre], "DNI / CE": [documento],
+                    "RUC": [ruc_natural], "Dirección": [direccion], "Teléfono": [telefono],
+                    "Correo": [correo], "Ciudad": [ciudad]
+                }
+                nombre_para_archivo = nombre.replace(" ", "_") if nombre else "Natural"
+            else:
+                contexto = {
+                    "nombre_persona_natural": rep_legal_old, "numero_dni": dni_rep,
+                    "fecha_texto_nacimiento": fecha_nac_rep, "nacionalidad": nacionalidad_rep,
+                    "correo_electronico": correo_rep, "numero_telefono": tel_rep, "telefono": tel_rep,                   
+                    "razon_social": razon_social_old, "numero_ruc": ruc_old,                     
+                    "dirección": direccion_emp, "direccion": direccion_emp,              
+                    "dirección_declarada": direccion_emp, "direccion_declarada": direccion_emp,
+                    "numero_partida_registral": partida, "numero_asiento": asiento,
+                    "ciudad": ciudad_f, "pais": "PERÚ", "dni_x": "X",
+                    "pas_x": " ", "ce_x": " ", "sol_x": " ", "
